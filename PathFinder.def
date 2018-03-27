@@ -1,0 +1,8 @@
+LIBRARY	"PathFinder"
+EXPORTS
+	Supports
+	Load
+	Unload
+	AmxLoad
+	AmxUnload
+	ProcessTick
