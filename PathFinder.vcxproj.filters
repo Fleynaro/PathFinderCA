@@ -40,9 +40,6 @@
     <ClCompile Include="SDK\amx\getch.c">
       <Filter>SDK\amx</Filter>
     </ClCompile>
-    <ClCompile Include="mutex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="path.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,7 +52,7 @@
     <ClCompile Include="SDK\amxplugin2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\Invoke\Invoke.cpp">
+    <ClCompile Include="CA_API.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -78,9 +75,6 @@
     <ClInclude Include="SDK\amx\sclinux.h">
       <Filter>SDK\amx</Filter>
     </ClInclude>
-    <ClInclude Include="mutex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -93,7 +87,7 @@
     <ClInclude Include="controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\Invoke\Invoke.h">
+    <ClInclude Include="CA_API.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

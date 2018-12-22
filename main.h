@@ -13,6 +13,7 @@
 #include <bitset>
 #include <list>
 #include <map>
+#include <mutex>
 
 
 //----------------------------------------------------------
@@ -22,6 +23,7 @@
 #include <process.h>
 #elif defined(LINUX)
 #include <pthread.h>
+#include <dlfcn.h>
 #define sscanf_s sscanf
 #define sprintf_s sprintf
 #define printf_s printf

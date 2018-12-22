@@ -70,7 +70,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>CA_VERSION="v1.4.0";CA_DATABASE_VERSION=2;WIN32;NDEBUG;_WINDOWS;_USRDLL;PATHFINDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\libs\bullet\lib;M:\Users\user\Desktop\SAMP Industrial SSD Continue\Plugin Dev\PathFinderCA\vendor;C:\libs\bullet\include\bullet;M:\Users\user\Desktop\SAMP Industrial SSD Continue\Plugin Dev\PathFinderCA\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>M:\Users\user\Desktop\SAMP Industrial SSD Continue\plugin Dev\PathFinderCA-master\vendor;M:\Users\user\Desktop\SAMP Industrial SSD Continue\plugin Dev\PathFinderCA-master\lib\Invoke;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -86,10 +86,9 @@
     <None Include="PathFinder.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CA_API.cpp" />
     <ClCompile Include="controller.cpp" />
-    <ClCompile Include="lib\Invoke\Invoke.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mutex.cpp" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="SDK\amxplugin.cpp" />
     <ClCompile Include="SDK\amxplugin2.cpp" />
@@ -97,11 +96,10 @@
     <ClCompile Include="thread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CA_API.h" />
     <ClInclude Include="controller.h" />
     <ClInclude Include="data.h" />
-    <ClInclude Include="lib\Invoke\Invoke.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="mutex.h" />
     <ClInclude Include="path.h" />
     <ClInclude Include="SDK\amx\amx.h" />
     <ClInclude Include="SDK\amx\getch.h" />

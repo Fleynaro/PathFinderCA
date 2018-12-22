@@ -10,19 +10,15 @@
 //                         INCLUDES
 //----------------------------------------------------------
 #include "main.h"
-#include "mutex.h"
+#include "CA_API.h"
 #include "path.h"
 #include <algorithm>
 
 //----------------------------------------------------------
 //                         Class
 //----------------------------------------------------------
-Path::Path(Mutex *colAndreasQueue, Invoke *g_Invoke/*, Controller *pController*/)
+Path::Path(CA_API *api)
 {
-	this->colAndreasQueue = colAndreasQueue;
-	this->g_Invoke = g_Invoke;
-	//this->pController = pController;
-
 	this->mapData = new std::map <int, mapPoint*>;
 	this->pathData = new std::deque <pathPoint*>;
 	
@@ -35,20 +31,24 @@ Path::Path(Mutex *colAndreasQueue, Invoke *g_Invoke/*, Controller *pController*/
 	this->WALL_UP = 1.0;
 	this->WALL_DOWN = 7.0;
 	this->PATH_SIZE = 2000;
+	this->world = 0;
 
 	mapPoint *parent = new mapPoint(0, 0, this);
 	mapPoint *child = new mapPoint(10, 10, this);
-	//logprintf("wall = %i", this->CheckWall(parent, child));
 
-	/*float x, y, z; int r;
-	r = g_Invoke->CA_RayCastLine(-2043.0, -88.0, 36.0, -2043.0, -88.0, 0.0, &x, &y, &z);
-	logprintf("x,y,z = %i, %f %f %f", r, x, y, z);*/
+	this->api = api;
+	logprintf("PATH CREATED g_lock=%x", this->api->CA_GetMutex());
 }
 
 void Path::SetPlaneSize(int x, int y)
 {
 	this->SIZE_X = x;
 	this->SIZE_Y = y;
+}
+
+void Path::SetWorld(int world)
+{
+	this->world = world;
 }
 
 void Path::SetDefaultBeginRelativeCoord()
@@ -74,28 +74,30 @@ void Path::SetBeginRelativeCoord(float x, float y, int width = 10, int height = 
 	}
 }
 
+bool Path::Check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z)
+{
+	//this->api->CA_GetMutex()->lock();
+	bool result = this->api->CA_RayCastLine(x1, y1, z1, x2, y2, z2, x, y, z, this->world) != 0;
+	//this->api->CA_GetMutex()->unlock();
+	return result;
+}
+
 bool Path::CheckWall(mapPoint *parent, mapPoint *child)
 {
 	float x1, y1, x2, y2, temp;
 	parent->GetGlobalXY(x1, y1);
 	child->GetGlobalXY(x2, y2);
-	//logprintf("CA_RayCastLine (%f,%f | %f,%f)", x1, y1, x2, y2);
-
-	/*x1 = (double)x1;
-	x2 = (double)x2;
-	y1 = (double)y1;
-	y2 = (double)y2;
-	temp = (double)temp;*/
-
-	this->colAndreasQueue->Lock();
-	bool result = (this->g_Invoke->CA_RayCastLine(x2, y2, parent->z + this->WALL_UP, x2, y2, parent->z - this->WALL_DOWN, &temp, &temp, &child->z) != 0 && -this->WALL_DOWN <= (child->z - parent->z) && (child->z - parent->z) <= this->WALL_UP && this->g_Invoke->CA_RayCastLine(x1, y1, parent->z + 0.5, x2, y2, child->z + 0.5, &temp, &temp, &temp) == 0);
 	
-	int a;
-	a = this->g_Invoke->CA_RayCastLine(x2, y2, parent->z + this->WALL_UP, x2, y2, parent->z - this->WALL_DOWN, &temp, &temp, &temp);
-	//logprintf("CA_RayCastLine a = %i,%f != 0 (%f,%f,%f %f,%f,%f)", a, temp, x2, y2, parent->z + this->WALL_UP, x2, y2, parent->z - this->WALL_DOWN);
-	a = this->g_Invoke->CA_RayCastLine(x1, y1, parent->z + 0.5, x2, y2, child->z + 0.5, &temp, &temp, &temp);
-	//logprintf("CA_RayCastLine b = %i,%f == 0 (%f,%f,%f %f,%f,%f)", a, temp, x1, y1, parent->z + 0.5, x2, y2, child->z + 0.5);
-	this->colAndreasQueue->Unlock();
+
+	//logprintf("1 CA_RayCastLine (%f,%f,%f | %f,%f,%f)", x1, y1, parent->z + this->WALL_UP, x2, y2, parent->z - this->WALL_DOWN);
+	bool result = (this->Check(x2, y2, parent->z + this->WALL_UP, x2, y2, parent->z - this->WALL_DOWN, temp, temp, child->z) && -this->WALL_DOWN <= (child->z - parent->z) && (child->z - parent->z) <= this->WALL_UP);
+	if (!result) {
+		//logprintf("result == 0");
+		return 0;
+	}
+	//logprintf("2 CA_RayCastLine (%f,%f,%f | %f,%f,%f)", x1, y1, parent->z + 0.5, x2, y2, child->z + 0.5);
+	result = !this->Check(x1, y1, parent->z + 0.5, x2, y2, child->z + 0.5, temp, temp, temp);
+	//logprintf("--- ok");
 	return result;
 }
 
@@ -105,7 +107,8 @@ void Path::Find()
 	//logprintf("this->cellSize = %f", this->cellSize);
 
 	this->finalPoint = new mapPoint(this->endX, this->endY, this);
-	//logprintf("this->finalPoint->x,y = %i,%i,%f %s", this->finalPoint->x, this->finalPoint->y, this->endZ, this->callback);
+	//logprintf("%i) this->finalPoint->x,y = %i,%i,%f %s (this->cellSize = %f, this->start->x,y,z = %f,%f,%f, bot=%i)", this->uID, this->finalPoint->x, this->finalPoint->y, this->endZ, this->callback, this->cellSize, this->startX, this->startY, this->startZ, this->PATH_SIZE - 3000);
+	
 	//logprintf("this->start->x,y,z = %f,%f,%f", this->startX, this->startY, this->startZ);
 
 	mapPoint *point = this->getMapPoint(this->beginX, this->beginY);
@@ -153,7 +156,7 @@ void Path::Find()
 		}
 
 		if ( this->mapData->size() > this->PATH_SIZE ) {
-			//logprintf("Error: finding size more defined.");
+			//logprintf("Error: finding size more defined %i.", this->mapData->size());
 			this->status = PATH_NOT_FOUND;
 			return;
 		}

@@ -10,15 +10,15 @@
 //                         INCLUDES
 //----------------------------------------------------------
 #include "main.h"
-#include "mutex.h"
 #include "path.h"
 #include "data.h"
 #include "thread.h"
 #include "SDK/amx/amx.h"
+#include <thread>
 //----------------------------------------------------------
 // Thread
 //----------------------------------------------------------
-Thread::Thread(std::queue<Path*> *qPath, std::queue<callbackWorkerData*> *qCallback, Mutex *workQueue, Mutex *callbackQueue)
+Thread::Thread(std::queue<Path*> *qPath, std::queue<callbackWorkerData*> *qCallback, std::mutex *workQueue, std::mutex *callbackQueue)
 {
 	//Get queues
 	this->qPath = qPath;
@@ -27,12 +27,10 @@ Thread::Thread(std::queue<Path*> *qPath, std::queue<callbackWorkerData*> *qCallb
 	//Get mutexes
 	this->workQueue = workQueue;
 	this->callbackQueue = callbackQueue;
-	this->threadState = new Mutex();
-
+	
 	this->state = ThreadState(WORKING);
-
-	//Start thread ÇÀÏÓÑÊÀÅÌ ÏÎÒÎÊ
-	START_THREAD(&Thread::RunPathCalculator, this); //fucking shit - 1h searching problem with this (NULL -> this)
+	std::thread th(&Thread::PathCalculator, this);
+	th.detach();
 }
 
 Thread::~Thread()
@@ -47,13 +45,13 @@ bool Thread::IsAlive()
 	ThreadState tempData;
 
 	//Block data access
-	this->threadState->Lock();
+	this->threadState.lock();
 
 	//Get data
 	tempData = this->state;
 
 	//Unlock data access
-	this->threadState->Unlock();
+	this->threadState.unlock();
 
 	//Return data
 	if (tempData == ThreadState(WORKING)) return true;
@@ -67,13 +65,13 @@ bool Thread::IsStoped()
 	ThreadState tempData;
 
 	//Block data access
-	this->threadState->Lock();
+	this->threadState.lock();
 
 	//Get data
 	tempData = this->state;
 
 	//Unlock data access
-	this->threadState->Unlock();
+	this->threadState.unlock();
 
 	//Return data
 	if (tempData == ThreadState(STOPED)) return true;
@@ -84,13 +82,13 @@ bool Thread::IsStoped()
 void Thread::KillThread()
 {
 	//Block data access
-	this->threadState->Lock();
+	this->threadState.lock();
 
 	//Set data
 	this->state = ThreadState(STOPING);
 
 	//Unlock data access
-	this->threadState->Unlock();
+	this->threadState.unlock();
 
 	//Wait for thread kill
 	while(true)
@@ -99,43 +97,31 @@ void Thread::KillThread()
 	}
 }
 
-//Wrapper
-#ifdef WIN32
-void Thread::RunPathCalculator(void *obj)
-#else
-void *Thread::RunPathCalculator(void *obj)
-#endif
-{
-	static_cast<Thread*>(obj)->PathCalculator(NULL);
-	//return ((Thread *)obj)->PathCalculator(NULL); also working
-}
-
 //PathCalculator
-#ifdef WIN32
-void Thread::PathCalculator(void *unused)
-#else
-void *Thread::PathCalculator(void *unused)
-#endif
+void Thread::PathCalculator()
 {
 	//Loop
 	while(this->IsAlive())
 	{
-		workQueue->Lock();
+		//logprintf("std::this_thread::get_id() = %i", std::this_thread::get_id());
+		workQueue->lock();
 		if(!qPath->empty())
 		{
 			//Ïîëó÷àåì äàííûå î ïóòè
 			Path *tempPath = this->qPath->front(); //ìû ïåðåäàëè qPath â ýòîò êëàññ Thread èç controller
 			qPath->pop();
 			//Unlock
-			workQueue->Unlock();
-			//logprintf("find....");
+			workQueue->unlock();
+			//logprintf("find.... %i", tempPath->uID);
 			//Search
 			tempPath->Find();
+			//logprintf("found.... %i", tempPath->uID);
 			//Send data - lock mutex
-			callbackQueue->Lock();
+			callbackQueue->lock();
 
 			if (tempPath->status == PATH_FOUND)
 			{
+				//logprintf("success found... %i", tempPath->uID);
 				//Ñîçäàåì äàííûå äëÿ îòïðàâêè óæå ïîòîì â ïàâí ÷åðåç callback
 				callbackWorkerData *tempCallbackWorker = new callbackWorkerData();
 				strcpy(tempCallbackWorker->name, tempPath->callback);
@@ -164,6 +150,7 @@ void *Thread::PathCalculator(void *unused)
 			}
 			else //ÅÑËÈ ÏÓÒÜ ÍÅ ÍÀÉÄÅÍ, ÒÎ ÂÎÒ ÒÀÊ ÏÎÑÒÓÏÀÅÌ:
 			{
+				//logprintf("not found... %i", tempPath->uID);
 				//Create empty data ;C
 				callbackWorkerData *tempCallbackWorker = new callbackWorkerData();
 				tempCallbackWorker->resultCode = tempPath->status;
@@ -183,7 +170,7 @@ void *Thread::PathCalculator(void *unused)
 			}
 
 			//Unlock
-			callbackQueue->Unlock();
+			callbackQueue->unlock();
 
 			//Clear
 			tempPath->Destroy();
@@ -191,24 +178,18 @@ void *Thread::PathCalculator(void *unused)
 		}
 		else //Waiting...
 		{
-			workQueue->Unlock();
-
-			/*float x, y, z; int r;
-			r = g_Invoke->CA_RayCastLine(-2043.0, -88.0, 36.0, -2043.0, -88.0, 0.0, &x, &y, &z);
-			logprintf("THREAD x,y,z = %i, %f %f %f", r, x, y, z);*/
-
+			workQueue->unlock();
 			SLEEP(20);
+			counter++;
 		}
 	}
 	
 	//Block data access
-	this->threadState->Lock();
+	this->threadState.lock();
 
 	//Set data
 	this->state = ThreadState(STOPED);
 
 	//Unlock data access
-	this->threadState->Unlock();
-	
-	EXIT_THREAD();
+	this->threadState.unlock();
 }

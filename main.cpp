@@ -10,17 +10,16 @@
 //                         INCLUDES
 //----------------------------------------------------------
 #include "main.h"
-#include "mutex.h"
 #include "path.h"
 #include "data.h"
 #include "thread.h"
 #include "controller.h"
+#include "CA_API.h"
 //----------------------------------------------------------
 // SDK Includes
 //----------------------------------------------------------
 #include "SDK/amx/amx.h"
 #include "SDK/plugincommon.h"
-#include <Invoke/Invoke.h>
 
 extern void *pAMXFunctions;
 logprintf_t logprintf;
@@ -31,16 +30,6 @@ bool inited = false;
 int ticked = 0;
 int maxTicked = 10;
 std::vector<AMX*> amxList;
-
-/*
-#include <ColAndreas/DynamicWorld.h>
-// ColAndreas stuff
-bool colInit = false;
-bool colDataLoaded = false;
-cell nullAddress = NULL;
-ColAndreasWorld* collisionWorld;
-*/
-
 Controller *pController;
 
 
@@ -64,8 +53,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load( void **ppData )
 	logprintf("PathFinderCA Plugin %s", PATHFINDER_VERSION);
 	logprintf("         by Pamdex and Fleynaro");
 	logprintf("=========================================");
-
-	g_Invoke = new Invoke;
 	return true;
 }
 
@@ -79,12 +66,44 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 	logprintf( "PathFinder Plugin %s Unloaded!", PATHFINDER_VERSION);
 }
 
+template <typename T_funct>
+T_funct LoadFunctsFromColAndreas(const char *funct)
+{
+	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+		std::string name = "ColAndreas.dll";
+		HMODULE CA = GetModuleHandle(std::wstring(name.begin(), name.end()).c_str());
+		if (CA) {
+			return (T_funct)GetProcAddress(CA, funct);
+		}
+		else {
+			logprintf("PathFinder plugin error: could not load ColAndreas.dll. Please, make ColAndreas load before this plugin.");
+		}
+	#elif defined(LINUX)
+		void *CA = dlopen("ColAndreas.so", RTLD_LAZY);
+		if (CA) {
+			return (T_funct)dlsym(CA, funct);
+		else {
+			logprintf("PathFinder plugin error: could not load ColAndreas.so. Please, make ColAndreas load before this plugin.");
+		}
+	#endif
+	return NULL;
+}
+
+
 // native PathFinder_Init(threads);
 cell AMX_NATIVE_CALL N_PF_Init(AMX* amx, cell* params)
 {
 	if(!inited)
 	{
-		pController = new Controller(g_Invoke);
+		CA_API *api = new CA_API();
+		if (!api->success) {
+			logprintf("PathFinder Plugin not loaded.");
+			return 0;
+		}
+		logprintf(">>>>>>>> g_lock=%x", api->CA_GetMutex());
+		api->CA_GetMutex()->lock();
+		api->CA_GetMutex()->unlock();
+		pController = new Controller(api);
 
 		//Start threads
 		for(int i = 0; i < params[1]; i++)
@@ -177,6 +196,21 @@ cell AMX_NATIVE_CALL N_PF_SetPlaneSize(AMX* amx, cell* params)
 		}
 		Path *path = pController->GetPath(id);
 		path->SetPlaneSize(params[2], params[3]);
+		return 1;
+	}
+}
+//PF_SetWorld(id, world)
+cell AMX_NATIVE_CALL N_PF_SetWorld(AMX* amx, cell* params)
+{
+	if (!inited) return 0;
+	else
+	{
+		int id = params[1];
+		if (!pController->IsPathValid(id)) {
+			return 0;
+		}
+		Path *path = pController->GetPath(id);
+		path->SetWorld(params[2]);
 		return 1;
 	}
 }
@@ -294,14 +328,14 @@ cell AMX_NATIVE_CALL N_PF_Find(AMX* amx, cell* params)
 		}
 
 		//Lock
-		pController->workQueue->Lock();
+		pController->workQueue->lock();
 
 		//Send (Добавляем в очередь)
 		pController->qPath->push(pController->GetPath(id));
 		//logprintf("name %s(%i)", pController->GetPath(id)->callback, id);
 
 		//Unlock
-		pController->workQueue->Unlock();
+		pController->workQueue->unlock();
 
 		pController->RemovePath(id);
 		return 1;
@@ -408,26 +442,13 @@ cell AMX_NATIVE_CALL N_PF_SetTickRate(AMX* amx, cell* params)
 	return 1;
 }
 
-// native PathFinder_MapAndreasLock();
-cell AMX_NATIVE_CALL N_PF_ColAndreasLock(AMX* amx, cell* params)
-{
-	pController->colAndreasQueue->Lock();
-	return 1;
-}
-
-// native PathFinder_MapAndreasUnlock();
-cell AMX_NATIVE_CALL N_PF_ColAndreasUnlock(AMX* amx, cell* params)
-{
-	pController->colAndreasQueue->Unlock();
-	return 1;
-}
-
 AMX_NATIVE_INFO pathFinderNatives[] =
 {
 	{ "PF_Init",					N_PF_Init },
 	{ "PF_Create",					N_PF_Create },
 	{ "PF_Remove",					N_PF_Remove },
 	{ "PF_SetPlaneSize",			N_PF_SetPlaneSize },
+	{ "PF_SetWorld",				N_PF_SetWorld },
 	{ "PF_SetWallSize",				N_PF_SetWallSize },
 	{ "PF_SetBeginRelativeCoord",	N_PF_SetBeginRelativeCoord },
 	{ "PF_SetStart",				N_PF_SetStart },
@@ -438,23 +459,18 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "PF_FindNow",					N_PF_FindNow },
 	{ "PF_GetPoint",				N_PF_GetPoint },
 	{ "PF_SetTickRate",				N_PF_SetTickRate },
-	{ "PF_ColAndreasLock",			N_PF_ColAndreasLock },
-	{ "PF_ColAndreasUnlock",		N_PF_ColAndreasUnlock },
 	{ 0,                        0 }
 };
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad( AMX *amx ) 
 {
 	amxList.push_back(amx);
-	g_Invoke->amx_list.push_back(amx);
-	g_Invoke->getAddresses();
 	return amx_Register(amx, pathFinderNatives, -1);
 }
 
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxUnload( AMX *amx ) 
 {
-	g_Invoke->amx_list.remove(amx);
 	for(std::vector<AMX*>::iterator i = amxList.begin(); i != amxList.end();++i)
 	{
 		if(*i == amx)
@@ -477,7 +493,7 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 			logprintf("TICKKK x,y,z = %i, %f %f %f", r, x, y, z);*/
 
 			//Lock - creating data for callback is very fast but...
-			pController->callbackQueue->Lock();
+			pController->callbackQueue->lock();
 			
 			//Send data to PAWN :)
 			while (!pController->qCallback->empty())
@@ -540,7 +556,7 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 			}
 
 			//Unlock
-			pController->callbackQueue->Unlock();
+			pController->callbackQueue->unlock();
 		}
 		//-------
 		ticked = 0;

@@ -7,11 +7,11 @@
 //
 //	   
 //----------------------------------------------------------
-#include <Invoke/Invoke.h>
+
 class Controller
 {
 public:
-	Controller(Invoke *g_Invoke);
+	Controller(CA_API *api);
 	~Controller();
 	int CreatePath(char *name);
 	bool IsPathValid(int id);
@@ -24,11 +24,10 @@ public:
 	
 	std::queue<Path*> *qPath;
 	std::queue<callbackWorkerData*> *qCallback;
-	Mutex *workQueue;
-	Mutex *callbackQueue;
-	Mutex *colAndreasQueue;
+	std::mutex *workQueue;
+	std::mutex *callbackQueue;
 private:
 	std::vector<Thread*> *threadList;
 	std::map<int, Path*> *paths;
-	Invoke *g_Invoke;
+	CA_API *api;
 };

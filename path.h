@@ -2,13 +2,12 @@
 //
 //
 //   	PathFinder Plugin
-//                  by Pamdex
+//                  by Pamdex and by Fleynaro
 //
 //
 //	   
 //----------------------------------------------------------
-#include <Invoke/Invoke.h>
-
+#include "CA_API.h"
 #define XYToNode(X,Y) (((Y - 3000) * -1) * 6000) + (X + 3000)
 #define PATH_CALCULATING 1
 #define PATH_FOUND 2
@@ -27,11 +26,10 @@ struct mapPoint;
 class Path
 {
 public:
-	Path(Mutex *colAndreasQueue, Invoke *g_Invoke/*, Controller *pController*/);
+	Path(CA_API *api);
 	std::deque <pathPoint*> *pathData;
 	std::map<int, mapPoint*> *mapData;
-
-	//Controller *pController;
+	
 	char callback[30];
 	std::deque<cell> params;
 	int id, type, status;
@@ -41,10 +39,12 @@ public:
 	float cellSize;
 	float WALL_UP, WALL_DOWN;
 	int PATH_SIZE;
+	unsigned long uID;
 	mapPoint *finalPoint;
 
 	int SIZE_X, SIZE_Y;
 	void SetPlaneSize(int x, int y);
+	void SetWorld(int world);
 
 	bool CheckWall(mapPoint *parent, mapPoint *child);
 	void SetDefaultBeginRelativeCoord();
@@ -52,6 +52,7 @@ public:
 	void Find();
 	void CreatePath(mapPoint * point);
 	bool IsFinal(mapPoint * point);
+	bool Check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z);
 	std::vector <mapPoint*> OpenCeils(mapPoint * point);
 	mapPoint * getMapPoint(int x, int y);
 
@@ -59,8 +60,8 @@ public:
 
 	~Path();
 private:
-	Mutex * colAndreasQueue;
-	Invoke *g_Invoke;
+	int world;
+	CA_API *api;
 };
 
 struct mapPoint

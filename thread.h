@@ -7,14 +7,7 @@
 //
 //	   
 //----------------------------------------------------------
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
-#define EXIT_THREAD() { _endthread(); }
-#define START_THREAD(a, b) { _beginthread( a, 0, (void *)( b ) ); }
-#elif defined(LINUX)
-#define EXIT_THREAD() { pthread_exit( NULL ); }
-#define START_THREAD(a, b) {	pthread_t thread;\
-	pthread_create(&thread, NULL, a, (void *)(b)); }
-#endif
+#include <mutex>
 enum ThreadState
 {
 	WORKING = 1,
@@ -24,23 +17,18 @@ enum ThreadState
 class Thread
 {
 public:
-	Thread(std::queue<Path*> *qPath, std::queue<callbackWorkerData*> *qCallback, Mutex *workQueue, Mutex *callbackQueue);
+	Thread(std::queue<Path*> *qPath, std::queue<callbackWorkerData*> *qCallback, std::mutex *workQueue, std::mutex *callbackQueue);
 	~Thread();
-	Mutex *workQueue;
-	Mutex *callbackQueue;
+	std::mutex *workQueue;
+	std::mutex *callbackQueue;
 	std::queue<Path*> *qPath;
 	std::queue<callbackWorkerData*> *qCallback;
+	int counter = 0;
 private:
-#ifdef WIN32
-	static void RunPathCalculator(void *obj);
-	void PathCalculator(void *unused);
-#else
-	static void *RunPathCalculator(void *obj);
-	void *PathCalculator(void *unused);
-#endif
+	void PathCalculator();
 	void KillThread();
 	bool IsAlive();
 	bool IsStoped();
-	Mutex *threadState;
+	std::mutex threadState;
 	ThreadState state;
 };

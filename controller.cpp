@@ -10,16 +10,16 @@
 //                         INCLUDES
 //----------------------------------------------------------
 #include "main.h"
-#include "mutex.h"
 #include "path.h"
 #include "data.h"
 #include "thread.h"
+#include "CA_API.h"
 #include "controller.h"
 
 //----------------------------------------------------------
 //                         Class
 //----------------------------------------------------------
-Controller::Controller(Invoke *g_Invoke)
+Controller::Controller(CA_API *api)
 {
 	//Thread (Список потоков. Это классы в векторе)
 	this->threadList = new std::vector<Thread*>; //Подробнее про векторы здесь http://cppstudio.com/post/8453/
@@ -31,16 +31,10 @@ Controller::Controller(Invoke *g_Invoke)
 	this->qCallback = new std::queue<callbackWorkerData*>; //переносим структуру данных callbackWorkerData в очередь queue
 
 	//Init global mutexes
-	this->workQueue = new Mutex();
-	this->workQueue->Init();
+	this->workQueue = new std::mutex();
+	this->callbackQueue = new std::mutex();
 
-	this->callbackQueue = new Mutex();
-	this->callbackQueue->Init();
-
-	this->colAndreasQueue = new Mutex();
-	this->colAndreasQueue->Init();
-
-	this->g_Invoke = g_Invoke;
+	this->api = api;
 }
 Controller::~Controller() //Выгрузка. Удаление всего и вся
 {
@@ -56,7 +50,6 @@ Controller::~Controller() //Выгрузка. Удаление всего и вся
 	delete qCallback;
 	delete workQueue;
 	delete callbackQueue;
-	delete colAndreasQueue;
 	//delete mapAndreas;
 }
 
@@ -71,26 +64,21 @@ int Controller::CreatePath(char *name)
 		}
 		id++;
 	}
-	//logprintf("created path id %i", id);
-
-	for (std::map<int, Path*>::iterator it = this->paths->begin(); it != this->paths->end(); it++) {
-		//logprintf("path id = %i(%s)", it->first, it->second->callback);
-	}
-
-	Path *path = new Path(this->colAndreasQueue, this->g_Invoke);
-	//path->id = id;
+	
+	Path *path = new Path(this->api);
+	path->uID = rand();
+	//logprintf("created path id %i", path->uID);
 
 	strcpy(path->callback, name);
 	this->paths->insert(std::make_pair(id, path));
-
-
+	
 	//logprintf("path id = %s", GetPath(id)->callback);
 	return id;
 }
 
 bool Controller::IsPathValid(int id)
 {
-	return (this->paths->count(id) != 0);
+	return (this->paths->find(id) != this->paths->end());
 }
 
 Path *Controller::GetPath(int id)
