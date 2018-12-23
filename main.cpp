@@ -100,9 +100,6 @@ cell AMX_NATIVE_CALL N_PF_Init(AMX* amx, cell* params)
 			logprintf("PathFinder Plugin not loaded.");
 			return 0;
 		}
-		logprintf(">>>>>>>> g_lock=%x", api->CA_GetMutex());
-		api->CA_GetMutex()->lock();
-		api->CA_GetMutex()->unlock();
 		pController = new Controller(api);
 
 		//Start threads
