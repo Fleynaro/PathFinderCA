@@ -1,3 +1,4 @@
+#pragma once
 //----------------------------------------------------------
 //
 //
@@ -8,6 +9,9 @@
 //	   
 //----------------------------------------------------------
 #include "CA_API.h"
+#include "main.h"
+#include <algorithm>
+
 #define XYToNode(X,Y) (((Y - 3000) * -1) * 6000) + (X + 3000)
 #define PATH_CALCULATING 1
 #define PATH_FOUND 2
@@ -30,7 +34,7 @@ public:
 	std::deque <pathPoint*> *pathData;
 	std::map<int, mapPoint*> *mapData;
 	
-	char callback[30];
+	std::string callback;
 	std::deque<cell> params;
 	int id, type, status;
 	float startX, startY, startZ;

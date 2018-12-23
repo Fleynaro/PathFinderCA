@@ -9,11 +9,6 @@
 //----------------------------------------------------------
 //                         INCLUDES
 //----------------------------------------------------------
-#include "main.h"
-#include "path.h"
-#include "data.h"
-#include "thread.h"
-#include "CA_API.h"
 #include "controller.h"
 
 //----------------------------------------------------------
@@ -68,8 +63,8 @@ int Controller::CreatePath(char *name)
 	Path *path = new Path(this->api);
 	path->uID = rand();
 	//logprintf("created path id %i", path->uID);
-
-	strcpy(path->callback, name);
+	
+	path->callback = name;
 	this->paths->insert(std::make_pair(id, path));
 	
 	//logprintf("path id = %s", GetPath(id)->callback);

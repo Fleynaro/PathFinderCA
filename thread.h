@@ -1,3 +1,4 @@
+#pragma once
 //----------------------------------------------------------
 //
 //
@@ -8,6 +9,12 @@
 //	   
 //----------------------------------------------------------
 #include <mutex>
+#include <thread>
+#include "main.h"
+#include "path.h"
+#include "data.h"
+#include "SDK/amx/amx.h"
+
 enum ThreadState
 {
 	WORKING = 1,

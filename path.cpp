@@ -9,10 +9,7 @@
 //----------------------------------------------------------
 //                         INCLUDES
 //----------------------------------------------------------
-#include "main.h"
-#include "CA_API.h"
 #include "path.h"
-#include <algorithm>
 
 //----------------------------------------------------------
 //                         Class
@@ -96,7 +93,7 @@ bool Path::CheckWall(mapPoint *parent, mapPoint *child)
 		return 0;
 	}
 	//logprintf("2 CA_RayCastLine (%f,%f,%f | %f,%f,%f)", x1, y1, parent->z + 0.5, x2, y2, child->z + 0.5);
-	result = !this->Check(x1, y1, parent->z + 0.5, x2, y2, child->z + 0.5, temp, temp, temp);
+	result = !this->Check(x1, y1, parent->z + float(0.5), x2, y2, child->z + float(0.5), temp, temp, temp);
 	//logprintf("--- ok");
 	return result;
 }
@@ -155,7 +152,7 @@ void Path::Find()
 			point = point->GetParent();
 		}
 
-		if ( this->mapData->size() > this->PATH_SIZE ) {
+		if ( this->mapData->size() > (size_t)this->PATH_SIZE ) {
 			//logprintf("Error: finding size more defined %i.", this->mapData->size());
 			this->status = PATH_NOT_FOUND;
 			return;

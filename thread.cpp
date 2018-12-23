@@ -9,12 +9,7 @@
 //----------------------------------------------------------
 //                         INCLUDES
 //----------------------------------------------------------
-#include "main.h"
-#include "path.h"
-#include "data.h"
 #include "thread.h"
-#include "SDK/amx/amx.h"
-#include <thread>
 //----------------------------------------------------------
 // Thread
 //----------------------------------------------------------
@@ -124,7 +119,7 @@ void Thread::PathCalculator()
 				//logprintf("success found... %i", tempPath->uID);
 				//Создаем данные для отправки уже потом в павн через callback
 				callbackWorkerData *tempCallbackWorker = new callbackWorkerData();
-				strcpy(tempCallbackWorker->name, tempPath->callback);
+				tempCallbackWorker->name = tempPath->callback;
 				tempCallbackWorker->resultCode = PATH_FOUND;
 				tempCallbackWorker->params = tempPath->params;
 				
@@ -154,7 +149,7 @@ void Thread::PathCalculator()
 				//Create empty data ;C
 				callbackWorkerData *tempCallbackWorker = new callbackWorkerData();
 				tempCallbackWorker->resultCode = tempPath->status;
-				strcpy(tempCallbackWorker->name, tempPath->callback);
+				tempCallbackWorker->name = tempPath->callback;
 				tempCallbackWorker->params = tempPath->params;
 				
 				//Init

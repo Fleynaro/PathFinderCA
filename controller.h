@@ -1,3 +1,4 @@
+#pragma once
 //----------------------------------------------------------
 //
 //
@@ -7,6 +8,11 @@
 //
 //	   
 //----------------------------------------------------------
+#include "main.h"
+#include "path.h"
+#include "data.h"
+#include "thread.h"
+#include "CA_API.h"
 
 class Controller
 {
@@ -31,3 +37,6 @@ private:
 	std::map<int, Path*> *paths;
 	CA_API *api;
 };
+
+
+extern Controller *pController;

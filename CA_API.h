@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "main.h"
 
@@ -7,7 +7,7 @@
 typedef int(*Type_CA_RayCastLine)(float, float, float, float, float, float, float &, float &, float &, int);
 typedef std::mutex*(*Type_CA_GetMutex)();
 
-#pragma once
+
 class CA_API
 {
 public:

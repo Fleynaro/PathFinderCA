@@ -1,3 +1,4 @@
+#pragma once
 //----------------------------------------------------------
 //
 //
@@ -10,7 +11,7 @@
 struct callbackWorkerData
 {
 	int resultCode;
-	char name[30];
+	std::string name;
 	std::deque<cell> params;
 	std::vector <cell> *nodeX;
 	std::vector <cell> *nodeY;
