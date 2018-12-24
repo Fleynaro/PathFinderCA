@@ -21,8 +21,8 @@ Controller::Controller(CA_API *api)
 
 
 	//Worker Data (Рабочие данные)
-	this->paths = new std::map<int, Path*>;
-	this->qPath = new std::queue<Path*>;
+	this->paths = new std::map<int, genPath*>;
+	this->qPath = new std::queue<genPath*>;
 	this->qCallback = new std::queue<callbackWorkerData*>; //переносим структуру данных callbackWorkerData в очередь queue
 
 	//Init global mutexes
@@ -48,6 +48,7 @@ Controller::~Controller() //Выгрузка. Удаление всего и вся
 	//delete mapAndreas;
 }
 
+template <typename T_path>
 int Controller::CreatePath(char *name)
 {
 	if (this->paths->size() >= MAX_PATHS_CREATED) return 0;
@@ -60,7 +61,7 @@ int Controller::CreatePath(char *name)
 		id++;
 	}
 	
-	Path *path = new Path(this->api);
+	genPath *path = new T_path(this->api);
 	path->uID = rand();
 	//logprintf("created path id %i", path->uID);
 	
@@ -76,7 +77,7 @@ bool Controller::IsPathValid(int id)
 	return (this->paths->find(id) != this->paths->end());
 }
 
-Path *Controller::GetPath(int id)
+genPath *Controller::GetPath(int id)
 {
 	return this->paths->find(id)->second;
 }

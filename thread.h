@@ -24,11 +24,11 @@ enum ThreadState
 class Thread
 {
 public:
-	Thread(std::queue<Path*> *qPath, std::queue<callbackWorkerData*> *qCallback, std::mutex *workQueue, std::mutex *callbackQueue);
+	Thread(std::queue<genPath*> *qPath, std::queue<callbackWorkerData*> *qCallback, std::mutex *workQueue, std::mutex *callbackQueue);
 	~Thread();
 	std::mutex *workQueue;
 	std::mutex *callbackQueue;
-	std::queue<Path*> *qPath;
+	std::queue<genPath*> *qPath;
 	std::queue<callbackWorkerData*> *qCallback;
 	int counter = 0;
 private:

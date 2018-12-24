@@ -11,13 +11,11 @@
 //----------------------------------------------------------
 #include "path.h"
 
-//----------------------------------------------------------
-//                         Class
-//----------------------------------------------------------
-Path::Path(CA_API *api)
+
+
+Path::Path(CA_API *api) : genPath(api)
 {
 	this->mapData = new std::map <int, mapPoint*>;
-	this->pathData = new std::deque <pathPoint*>;
 	
 	this->id = -1;
 	this->SetPlaneSize(1024, 1024);
@@ -28,24 +26,15 @@ Path::Path(CA_API *api)
 	this->WALL_UP = 1.0;
 	this->WALL_DOWN = 7.0;
 	this->PATH_SIZE = 2000;
-	this->world = 0;
-
+	
 	mapPoint *parent = new mapPoint(0, 0, this);
 	mapPoint *child = new mapPoint(10, 10, this);
-
-	this->api = api;
-	logprintf("PATH CREATED g_lock=%x", this->api->CA_GetMutex());
 }
 
 void Path::SetPlaneSize(int x, int y)
 {
 	this->SIZE_X = x;
 	this->SIZE_Y = y;
-}
-
-void Path::SetWorld(int world)
-{
-	this->world = world;
 }
 
 void Path::SetDefaultBeginRelativeCoord()
@@ -74,7 +63,7 @@ void Path::SetBeginRelativeCoord(float x, float y, int width = 10, int height = 
 bool Path::Check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z)
 {
 	//this->api->CA_GetMutex()->lock();
-	bool result = this->api->CA_RayCastLine(x1, y1, z1, x2, y2, z2, x, y, z, this->world) != 0;
+	bool result = this->api->CA_RayCastLine(x1, y1, z1, x2, y2, z2, x, y, z, this->GetWorld()) != 0;
 	//this->api->CA_GetMutex()->unlock();
 	return result;
 }
@@ -100,7 +89,7 @@ bool Path::CheckWall(mapPoint *parent, mapPoint *child)
 
 void Path::Find()
 {
-	this->status = PATH_CALCULATING;
+	this->status = PROCESS;
 	//logprintf("this->cellSize = %f", this->cellSize);
 
 	this->finalPoint = new mapPoint(this->endX, this->endY, this);
@@ -146,7 +135,7 @@ void Path::Find()
 		if (!found) {
 			if (point->IsBegining()) {
 				//logprintf("Error: not found.");
-				this->status = PATH_NOT_FOUND;
+				this->status = FOUND;
 				return;
 			}
 			point = point->GetParent();
@@ -154,7 +143,7 @@ void Path::Find()
 
 		if ( this->mapData->size() > (size_t)this->PATH_SIZE ) {
 			//logprintf("Error: finding size more defined %i.", this->mapData->size());
-			this->status = PATH_NOT_FOUND;
+			this->status = NOT_FOUND;
 			return;
 		}
 	}
@@ -173,7 +162,7 @@ void Path::CreatePath(mapPoint *point)
 	int i = 0;
 	while (i < this->PATH_SIZE) {
 		if (point->IsBegining()) {
-			this->status = PATH_FOUND;
+			this->status = FOUND;
 			return;
 		}
 		//logprintf("point(%i,%i,%f  %i,%i,%f) to Start (%i,%i)", point->x, point->y, point->z, point->GetParent()->x, point->GetParent()->y, point->GetParent()->z, this->beginX, this->beginY);
@@ -187,13 +176,13 @@ void Path::CreatePath(mapPoint *point)
 		point = point->GetParent();
 		i++;
 	}
-	this->status = PATH_NOT_FOUND;
+	this->status = NOT_FOUND;
 }
 
 bool Path::IsFinal(mapPoint *point)
 {
 	if (point->x == this->SIZE_X - 1 || point->y == this->SIZE_Y - 1) {
-		this->status = PATH_FOUND;
+		this->status = FOUND;
 		return true;
 	}
 	switch (this->type)

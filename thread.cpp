@@ -13,7 +13,7 @@
 //----------------------------------------------------------
 // Thread
 //----------------------------------------------------------
-Thread::Thread(std::queue<Path*> *qPath, std::queue<callbackWorkerData*> *qCallback, std::mutex *workQueue, std::mutex *callbackQueue)
+Thread::Thread(std::queue<genPath*> *qPath, std::queue<callbackWorkerData*> *qCallback, std::mutex *workQueue, std::mutex *callbackQueue)
 {
 	//Get queues
 	this->qPath = qPath;
@@ -103,7 +103,7 @@ void Thread::PathCalculator()
 		if(!qPath->empty())
 		{
 			//ѕолучаем данные о пути
-			Path *tempPath = this->qPath->front(); //мы передали qPath в этот класс Thread из controller
+			genPath *tempPath = this->qPath->front(); //мы передали qPath в этот класс Thread из controller
 			qPath->pop();
 			//Unlock
 			workQueue->unlock();
@@ -114,13 +114,13 @@ void Thread::PathCalculator()
 			//Send data - lock mutex
 			callbackQueue->lock();
 
-			if (tempPath->status == PATH_FOUND)
+			if (tempPath->status == Path::FOUND)
 			{
 				//logprintf("success found... %i", tempPath->uID);
 				//—оздаем данные дл€ отправки уже потом в павн через callback
 				callbackWorkerData *tempCallbackWorker = new callbackWorkerData();
 				tempCallbackWorker->name = tempPath->callback;
-				tempCallbackWorker->resultCode = PATH_FOUND;
+				tempCallbackWorker->resultCode = Path::FOUND;
 				tempCallbackWorker->params = tempPath->params;
 				
 				//Init

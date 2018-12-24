@@ -36,12 +36,12 @@ cell AMX_NATIVE_CALL Natives::PF_Create(AMX* amx, cell* params)
 	{
 		char *name;
 		amx_StrParam(amx, params[1], name);
-		int id = pController->CreatePath(name);
+		int id = pController->CreatePath<Path>(name);
 		if (id == 0) {
 			return 0;
 		}
 
-		Path *path = pController->GetPath(id);
+		Path *path = (Path*)pController->GetPath(id);
 		path->cellSize = amx_ctof(params[2]);
 		path->PATH_SIZE = params[3];
 
@@ -306,7 +306,7 @@ cell AMX_NATIVE_CALL Natives::PF_FindNow(AMX* amx, cell* params)
 		*pAddress = path->status;
 		}
 		delete path;*/
-		if (path->status == PATH_FOUND && !path->pathData->empty()) {
+		if (path->status == Path::FOUND && !path->pathData->empty()) {
 			return 1;
 		}
 		else {
@@ -326,7 +326,7 @@ cell AMX_NATIVE_CALL Natives::PF_GetPoint(AMX* amx, cell* params)
 		int id = params[1];
 		Path *path = pController->GetPath(id);
 
-		if (path->status != PATH_FOUND || path->pathData->empty()) {
+		if (path->status != Path::FOUND || path->pathData->empty()) {
 			path->Destroy();
 			pController->RemovePath(id);
 			return 0;

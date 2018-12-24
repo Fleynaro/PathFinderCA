@@ -8,63 +8,47 @@
 //
 //	   
 //----------------------------------------------------------
-#include "CA_API.h"
-#include "main.h"
-#include <algorithm>
+#include "genPath.h"
 
 #define XYToNode(X,Y) (((Y - 3000) * -1) * 6000) + (X + 3000)
-#define PATH_CALCULATING 1
-#define PATH_FOUND 2
-#define PATH_NOT_FOUND 3
 
 #define PATH_TYPE_POINT 1
 #define PATH_TYPE_LINE 2
 #define PATH_TYPE_CIRCLE 3
 
-struct pathPoint
-{
-	float x, y, z;
-};
 struct mapPoint;
-
-class Path
+class Path : public genPath
 {
 public:
 	Path(CA_API *api);
-	std::deque <pathPoint*> *pathData;
 	std::map<int, mapPoint*> *mapData;
 	
-	std::string callback;
-	std::deque<cell> params;
-	int id, type, status;
+	int id, type;
 	float startX, startY, startZ;
 	int beginX, beginY;
 	float endX, endY, endZ;
 	float cellSize;
 	float WALL_UP, WALL_DOWN;
-	int PATH_SIZE;
 	unsigned long uID;
 	mapPoint *finalPoint;
 
 	int SIZE_X, SIZE_Y;
 	void SetPlaneSize(int x, int y);
-	void SetWorld(int world);
-
+	
 	bool CheckWall(mapPoint *parent, mapPoint *child);
 	void SetDefaultBeginRelativeCoord();
 	void SetBeginRelativeCoord(float x, float y, int width, int height);
-	void Find();
 	void CreatePath(mapPoint * point);
 	bool IsFinal(mapPoint * point);
 	bool Check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z);
 	std::vector <mapPoint*> OpenCeils(mapPoint * point);
 	mapPoint * getMapPoint(int x, int y);
 
-	void Destroy();
+	void Find() override;
+	void Destroy() override;
 
 	~Path();
 private:
-	int world;
 	CA_API *api;
 };
 

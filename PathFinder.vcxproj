@@ -87,9 +87,11 @@
   <ItemGroup>
     <ClCompile Include="CA_API.cpp" />
     <ClCompile Include="controller.cpp" />
+    <ClCompile Include="genPath.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Natives.cpp" />
     <ClCompile Include="path.cpp" />
+    <ClCompile Include="RoadPath.cpp" />
     <ClCompile Include="SDK\amxplugin.cpp" />
     <ClCompile Include="SDK\amxplugin2.cpp" />
     <ClCompile Include="SDK\amx\getch.c" />
@@ -99,9 +101,11 @@
     <ClInclude Include="CA_API.h" />
     <ClInclude Include="controller.h" />
     <ClInclude Include="data.h" />
+    <ClInclude Include="genPath.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Natives.h" />
     <ClInclude Include="path.h" />
+    <ClInclude Include="RoadPath.h" />
     <ClInclude Include="SDK\amx\amx.h" />
     <ClInclude Include="SDK\amx\getch.h" />
     <ClInclude Include="SDK\amx\sclinux.h" />

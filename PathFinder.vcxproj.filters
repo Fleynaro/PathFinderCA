@@ -57,6 +57,12 @@
     <ClCompile Include="Natives.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="genPath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RoadPath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -93,6 +99,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Natives.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="genPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RoadPath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
