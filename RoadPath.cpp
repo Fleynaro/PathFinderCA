@@ -1,6 +1,7 @@
 #include "RoadPath.h"
 
-
+roadNode RoadPath::nodes[MAX_ROAD_NODES];
+nodeId RoadPath::lastNodeId;
 
 RoadPath::RoadPath(CA_API *api) : genPath(api)
 {
@@ -193,7 +194,7 @@ bool road::getNormalPoint(float X, float Y, float &x, float &y, float &z)
 	roadNode
 		*node1 = this->getParentNode(),
 		*node2 = this->getNextNode();
-	float
+	double
 		k1 = (node2->getY() - node1->getY()) / (node1->getX() == node2->getX() ? 0.00001 : (node1->getX() - node2->getX())),
 		b1 = node1->getY() + node1->getX() * k1,
 		k2 = -1 / (k1 == 0 ? 0.00001 : k1),
@@ -201,23 +202,23 @@ bool road::getNormalPoint(float X, float Y, float &x, float &y, float &z)
 
 	x = (b2 - b1) / (k2 - k1);
 	y = -k1 * x + b1;
-	z = (node2->getZ() + node1->getZ()) / 2.0;
+	z = (node2->getZ() + node1->getZ()) / (float)2.0;
 
-	return (node1->getX() <= x <= node2->getX() || node1->getX() >= x >= node2->getX()) && (node1->getY() <= y <= node2->getY() || node1->getY() >= y >= node2->getY());
+	return ((node1->getX() <= x && x <= node2->getX()) || (node1->getX() >= x && x >= node2->getX())) && ((node1->getY() <= y && y <= node2->getY()) || (node1->getY() >= y && y >= node2->getY()));
 }
 
-road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, float &fy, float &fz, float minRadius = 0.0)
+road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, float &fy, float &fz, float minRadius)
 {
 	float minDist = std::numeric_limits<float>::max();
-	road result(0);
+	road Road(0);
 	minRadius *= minRadius;
 	radius *= radius;
 
 	for (int i = 0, size = RoadPath::size(); i < size; i++) {
-		roadNode *node = &RoadPath::getNode(i);
+		roadNode *node = RoadPath::getNode(i);
 		float dist = node->getDist2To(x, y, z);
 		if (dist <= 100.0*100.0) {
-			for (int j; j < 4; j++) {
+			for (int j = 0; j < 4; j++) {
 				roadNode *child = node->getChild(j);
 				if (child == NULL) break;
 				if (child->getId() > i)
@@ -228,7 +229,7 @@ road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, fl
 						float dist2 = (x - tx)*(x - tx) + (y - ty)*(y - ty) + (z - tz)*(z - tz);
 						if (dist2 < minDist) {
 							minDist = dist2;
-							result = tempRoad;
+							Road = tempRoad;
 							fx = tx;
 							fy = ty;
 							fz = tz;
@@ -239,7 +240,7 @@ road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, fl
 		}
 		if (dist < minDist) {
 			minDist = dist;
-			result = road(node, NULL);
+			Road = road(node, NULL);
 			fx = node->getX();
 			fy = node->getY();
 			fz = node->getZ();
@@ -249,7 +250,7 @@ road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, fl
 			break;
 		}
 	}
-	return result;
+	return Road;
 }
 
 
@@ -258,10 +259,10 @@ void RoadPath::fixRoads()
 {
 	std::vector<int> passed;
 	for (int i = 0, size = RoadPath::size(); i < size; i++) {
-		roadNode *node = &RoadPath::getNode(i);
+		roadNode *node = RoadPath::getNode(i);
 		if ( node->isMultiple() ) {
 			passed.push_back(i);
-			for (int j; j < 4; j++) {
+			for (int j = 0; j < 4; j++) {
 				roadNode *child = node->getMultipleNode(j).getParentNode();
 				if (child == NULL || std::find(passed.begin(), passed.end(), child->getId()) != passed.end()) continue;
 
@@ -287,14 +288,25 @@ void RoadPath::fixRoads()
 	}
 }
 
-roadNode RoadPath::getNode(int16_t index)
+roadNode *RoadPath::getNode(nodeId index)
 {
-	return nodes[index];
+	return &RoadPath::nodes[index];
 }
 
-void RoadPath::addNode(int16_t index, roadNode node)
+void RoadPath::addNode(nodeId index, roadNode node)
 {
-	nodes[index] = node;
+	RoadPath::nodes[index] = node;
+	if (index >= RoadPath::lastNodeId) {
+		RoadPath::lastNodeId = index + 1;
+	}
+}
+
+void RoadPath::removeNode(nodeId index)
+{
+	RoadPath::nodes[index] = roadNode();
+	if (index == RoadPath::lastNodeId - 1) {
+		RoadPath::lastNodeId --;
+	}
 }
 
 RoadPath::~RoadPath()

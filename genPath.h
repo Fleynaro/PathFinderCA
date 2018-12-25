@@ -16,7 +16,7 @@ struct pathPoint
 class genPath
 {
 public:
-	static enum status { FOUND, NOT_FOUND, PROCESS };
+	enum status { FOUND, NOT_FOUND, PROCESS };
 	status status;
 
 	genPath(CA_API *api);

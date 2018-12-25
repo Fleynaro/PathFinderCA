@@ -33,3 +33,22 @@ public:
 	static cell AMX_NATIVE_CALL PF_GetPoint(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_SetTickRate(AMX* amx, cell* params);
 };
+
+class RoadNatives
+{
+public:
+	RoadNatives();
+	~RoadNatives();
+
+	static cell AMX_NATIVE_CALL ROAD_Create(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_Remove(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_Find(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_FindNow(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_GetPoint(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_AddNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_GetNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_RemoveNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_GetNormalPointToRoad(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_FindNearbyRoad(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_Get(AMX* amx, cell* params);
+};

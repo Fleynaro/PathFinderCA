@@ -19,10 +19,11 @@ class RoadPath : public genPath
 {
 public:
 	static void fixRoads();
-	static roadNode getNode(int16_t index);
-	static void addNode(int16_t index, roadNode node);
+	static roadNode *getNode(nodeId index);
+	static void addNode(nodeId index, roadNode node);
+	static void removeNode(nodeId index);
 	static int size() {
-		return sizeof(RoadPath::nodes) / sizeof(roadNode);
+		return RoadPath::lastNodeId;
 	};
 	RoadPath(CA_API *api);
 	~RoadPath();
@@ -36,11 +37,11 @@ public:
 	void Destroy() override;
 private:
 	static roadNode nodes[MAX_ROAD_NODES];
+	static nodeId lastNodeId;
 	std::map<nodeId, roadPathNode*> pathNodes;
 	roadNode *startNode;
 	roadNode *finalNode;
 };
-
 
 
 
@@ -75,9 +76,6 @@ public:
 	void setParent(roadPathNode *parentNode) {
 		this->parentNode = parentNode;
 	}
-	bool isOpen() {
-		return this->path->isPathNode(this->node);
-	}
 	roadNode *getNode() {
 		return this->node;
 	}
@@ -92,13 +90,14 @@ private:
 struct roadNode
 {
 public:
+	roadNode() {}
 	roadNode(nodeId id, float x, float y, float z)
 	{
 		this->id = id;
 		this->x = x;
 		this->y = y;
 		this->z = z;
-		for (int i = 0; i < sizeof(child) / sizeof(nodeId); i++) {
+		for (int i = 0; i < 4; i++) {
 			this->setChild(i, ROAD_NOT);
 		}
 	}
@@ -120,6 +119,9 @@ public:
 	bool isChild(int index) {
 		return this->child[index] != ROAD_NOT;
 	}
+	bool isValid() {
+		return this->getId() != ROAD_NOT;
+	}
 	float getDist2To(float x, float y, float z) {
 		return (this->getX() - x) * (this->getX() - x) + (this->getY() - y) * (this->getY() - y) + (this->getZ() - z) * (this->getZ() - z);
 	}
@@ -132,12 +134,15 @@ public:
 	void setChild(int index, nodeId index2) {
 		this->child[index] = index2;
 	}
+	nodeId *getChilds() {
+		return this->child;
+	}
 	nodeId getId() {
 		return this->id;
 	}
 	roadNode *getChild(int index) {
 		if (!this->isChild(index)) return NULL;
-		return &RoadPath::getNode(this->child[index]);
+		return RoadPath::getNode(this->child[index]);
 	}
 	int getChildCount() {
 		int count;
@@ -148,7 +153,7 @@ public:
 	road getMultipleNode(int child, float &distance);
 	road getMultipleNode(int child, roadNode *exclude = NULL);
 private:
-	nodeId id;
+	nodeId id = ROAD_NOT;
 	float x, y, z;
 	nodeId child[4];
 };
@@ -166,7 +171,7 @@ public:
 		this->nextNode = NULL;
 	}
 	bool isValid() {
-		return this->parentNode != NULL;
+		return (this->parentNode != NULL && this->nextNode != NULL) && (this->parentNode->isValid() && this->nextNode->isValid());
 	}
 	roadNode *getParentNode() {
 		return this->parentNode;

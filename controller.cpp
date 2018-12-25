@@ -48,38 +48,9 @@ Controller::~Controller() //Выгрузка. Удаление всего и вся
 	//delete mapAndreas;
 }
 
-template <typename T_path>
-int Controller::CreatePath(char *name)
-{
-	if (this->paths->size() >= MAX_PATHS_CREATED) return 0;
-	int id = 1;
-
-	while ( id < MAX_PATHS_CREATED) {
-		if (!this->IsPathValid(id)) {
-			break;
-		}
-		id++;
-	}
-	
-	genPath *path = new T_path(this->api);
-	path->uID = rand();
-	//logprintf("created path id %i", path->uID);
-	
-	path->callback = name;
-	this->paths->insert(std::make_pair(id, path));
-	
-	//logprintf("path id = %s", GetPath(id)->callback);
-	return id;
-}
-
 bool Controller::IsPathValid(int id)
 {
 	return (this->paths->find(id) != this->paths->end());
-}
-
-genPath *Controller::GetPath(int id)
-{
-	return this->paths->find(id)->second;
 }
 
 void Controller::RemovePath(int id)

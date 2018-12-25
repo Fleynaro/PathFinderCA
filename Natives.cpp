@@ -41,7 +41,7 @@ cell AMX_NATIVE_CALL Natives::PF_Create(AMX* amx, cell* params)
 			return 0;
 		}
 
-		Path *path = (Path*)pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->cellSize = amx_ctof(params[2]);
 		path->PATH_SIZE = params[3];
 
@@ -105,7 +105,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetPlaneSize(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->SetPlaneSize(params[2], params[3]);
 		return 1;
 	}
@@ -120,7 +120,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetWorld(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->SetWorld(params[2]);
 		return 1;
 	}
@@ -135,7 +135,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetWallSize(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->WALL_UP = amx_ctof(params[2]);
 		path->WALL_DOWN = amx_ctof(params[3]);
 		return 1;
@@ -151,7 +151,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetBeginRelativeCoord(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->SetBeginRelativeCoord(amx_ctof(params[2]), amx_ctof(params[3]), params[4], params[5]);
 		return 1;
 	}
@@ -166,7 +166,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetStart(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->startX = amx_ctof(params[2]);
 		path->startY = amx_ctof(params[3]);
 		path->startZ = amx_ctof(params[4]);
@@ -184,7 +184,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetFinalAsPoint(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->type = PATH_TYPE_POINT;
 		path->endX = amx_ctof(params[2]);
 		path->endY = amx_ctof(params[3]);
@@ -202,7 +202,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetFinalAsCircle(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->type = PATH_TYPE_CIRCLE;
 		path->endX = amx_ctof(params[2]);
 		path->endY = amx_ctof(params[3]);
@@ -220,7 +220,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetFinalAsLine(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->type = PATH_TYPE_LINE;
 		//to do
 		return 1;
@@ -242,7 +242,7 @@ cell AMX_NATIVE_CALL Natives::PF_Find(AMX* amx, cell* params)
 		pController->workQueue->lock();
 
 		//Send (Добавляем в очередь)
-		pController->qPath->push(pController->GetPath(id));
+		pController->qPath->push(pController->GetPath<Path>(id));
 		//logprintf("name %s(%i)", pController->GetPath(id)->callback, id);
 
 		//Unlock
@@ -263,49 +263,9 @@ cell AMX_NATIVE_CALL Natives::PF_FindNow(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 		path->Find();
 
-		/*if (path->status == PATH_FOUND)
-		{
-		cell *pAddress = NULL;
-		amx_GetAddr(amx, params[2], &pAddress);
-		*pAddress = PATH_FOUND;
-
-		std::vector<cell> *nodeX, *nodeY, *nodeZ;
-		while (!path->pathData->empty())
-		{
-		float tempX = path->pathData->back()->x;
-		float tempY = path->pathData->back()->y;
-		float tempZ = path->pathData->back()->z;
-		nodeX->push_back(amx_ftoc(tempX));
-		nodeY->push_back(amx_ftoc(tempY));
-		nodeZ->push_back(amx_ftoc(tempZ));
-		path->pathData->pop_back();
-		}
-
-		cell *rawDataZ = new cell[nodeX->size() + 1];//создаем массивы
-		cell *rawDataY = new cell[nodeX->size() + 1];
-		cell *rawDataX = new cell[nodeX->size() + 1];
-		copy(nodeZ->begin(), nodeZ->end(), rawDataZ);//копируем в эти массивы данные из tempCallbackWorker->node
-		copy(nodeY->begin(), nodeY->end(), rawDataY);
-		copy(nodeX->begin(), nodeX->end(), rawDataX);
-
-		amx_GetAddr(amx, params[3], &pAddress);
-		*pAddress = *rawDataX;
-		amx_GetAddr(amx, params[4], &pAddress);
-		*pAddress = *rawDataY;
-		amx_GetAddr(amx, params[5], &pAddress);
-		*pAddress = *rawDataZ;
-		amx_GetAddr(amx, params[6], &pAddress);
-		*pAddress = nodeX->size() + 1;
-		}
-		else {
-		cell *pAddress = NULL;
-		amx_GetAddr(amx, params[2], &pAddress);
-		*pAddress = path->status;
-		}
-		delete path;*/
 		if (path->status == Path::FOUND && !path->pathData->empty()) {
 			return 1;
 		}
@@ -324,7 +284,7 @@ cell AMX_NATIVE_CALL Natives::PF_GetPoint(AMX* amx, cell* params)
 	else
 	{
 		int id = params[1];
-		Path *path = pController->GetPath(id);
+		Path *path = pController->GetPath<Path>(id);
 
 		if (path->status != Path::FOUND || path->pathData->empty()) {
 			path->Destroy();
@@ -353,7 +313,173 @@ cell AMX_NATIVE_CALL Natives::PF_SetTickRate(AMX* amx, cell* params)
 	return 1;
 }
 
-
 Natives::~Natives()
 {
 }
+
+
+#include "RoadPath.h"
+
+RoadNatives::RoadNatives()
+{
+}
+
+RoadNatives::~RoadNatives()
+{
+}
+
+cell AMX_NATIVE_CALL RoadNatives::ROAD_Create(AMX * amx, cell * params)
+{
+	return cell AMX_NATIVE_CALL();
+}
+
+cell AMX_NATIVE_CALL RoadNatives::ROAD_Remove(AMX * amx, cell * params)
+{
+	return cell AMX_NATIVE_CALL();
+}
+
+cell AMX_NATIVE_CALL RoadNatives::ROAD_Find(AMX * amx, cell * params)
+{
+	return cell AMX_NATIVE_CALL();
+}
+
+cell AMX_NATIVE_CALL RoadNatives::ROAD_FindNow(AMX * amx, cell * params)
+{
+	return cell AMX_NATIVE_CALL();
+}
+
+cell AMX_NATIVE_CALL RoadNatives::ROAD_GetPoint(AMX * amx, cell * params)
+{
+	return cell AMX_NATIVE_CALL();
+}
+
+//ROAD_AddNode(index, Float: x, Float: y, Float: z, child1, child2, child3, child4)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_AddNode(AMX * amx, cell * params)
+{
+	nodeId index = params[1];
+	float
+		x = amx_ctof(params[2]),
+		y = amx_ctof(params[3]),
+		z = amx_ctof(params[4]);
+
+	roadNode node(index, x, y, z);
+	for (int i = 0; i < 4; i++) {
+		if (params[5 + i] == -1) break;
+		node.setChild(i, params[5 + i]);
+	}
+	RoadPath::addNode(index, node);
+
+	return 1;
+}
+
+//ROAD_GetNode(index, &Float: x, &Float: y, &Float: z, childs[])
+cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNode(AMX * amx, cell * params)
+{
+	nodeId index = params[1];
+	if (!(0 <= index && index < RoadPath::size())) return 0;
+	roadNode *node = RoadPath::getNode(index);
+	if (node->getId() == ROAD_NOT) return 0;
+	float
+		x = node->getX(),
+		y = node->getY(),
+		z = node->getZ();
+	cell *pAddress = NULL;
+	amx_GetAddr(amx, params[2], &pAddress);
+	*pAddress = amx_ftoc(x);
+	amx_GetAddr(amx, params[3], &pAddress);
+	*pAddress = amx_ftoc(y);
+	amx_GetAddr(amx, params[4], &pAddress);
+	*pAddress = amx_ftoc(z);
+	amx_GetAddr(amx, params[5], &pAddress);
+	for (int i = 0; i < 4; i ++) {
+		cell id = ROAD_NOT;
+		if (node->isChild(i)) {
+			id = node->getChild(i)->getId();
+		}
+		*(pAddress + i) = id;
+	}
+	return 1;
+}
+
+//ROAD_RemoveNode(index)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_RemoveNode(AMX * amx, cell * params)
+{
+	nodeId index = params[1];
+	if (!(0 <= index && index < RoadPath::size())) return 0;
+	roadNode *node = RoadPath::getNode(index);
+	if (node->getId() == ROAD_NOT) return 0;
+	RoadPath::removeNode(index);
+	return 1;
+}
+
+//ROAD_GetNormalPointToRoad(startNode, finalNode, Float: X, Float: Y, &Float: x, &Float: y, &Float: z)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNormalPointToRoad(AMX * amx, cell * params)
+{
+	nodeId
+		startNode = params[1],
+		finalNode = params[2];
+	if (!(0 <= startNode && startNode < RoadPath::size() && 0 <= finalNode && finalNode < RoadPath::size())) return 0;
+	road Road = road(RoadPath::getNode(startNode), RoadPath::getNode(finalNode));
+	if (!Road.isValid()) return 0;
+
+	float
+		X = amx_ctof(params[3]),
+		Y = amx_ctof(params[4]),
+		x, y, z;
+	bool result = Road.getNormalPoint(X, Y, x, y, z);
+
+	cell *pAddress = NULL;
+	amx_GetAddr(amx, params[5], &pAddress);
+	*pAddress = amx_ftoc(x);
+	amx_GetAddr(amx, params[6], &pAddress);
+	*pAddress = amx_ftoc(y);
+	amx_GetAddr(amx, params[7], &pAddress);
+	*pAddress = amx_ftoc(z);
+	return result;
+}
+
+//ROAD_FindNearbyRoad(Float: X, Float: Y, Float: Z, Float: radius, &Float: x, &Float: y, &Float: z, &startNode, &finalNode, Float: minRadius = 0.0)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_FindNearbyRoad(AMX * amx, cell * params)
+{
+	float
+		X = amx_ctof(params[1]),
+		Y = amx_ctof(params[2]),
+		Z = amx_ctof(params[3]),
+		radius = amx_ctof(params[4]),
+		minRadius = amx_ctof(params[10]),
+		x = 0.0, y = 0.0, z = 0.0;
+
+	road Road = road::findNearbyRoad(X, Y, Z, radius, x, y, z, minRadius);
+	if ( Road.isValid() ) {
+		cell *pAddress = NULL;
+		amx_GetAddr(amx, params[5], &pAddress);
+		*pAddress = amx_ftoc(x);
+		amx_GetAddr(amx, params[6], &pAddress);
+		*pAddress = amx_ftoc(y);
+		amx_GetAddr(amx, params[7], &pAddress);
+		*pAddress = amx_ftoc(z);
+
+		amx_GetAddr(amx, params[8], &pAddress);
+		*pAddress = Road.getParentNode()->getId();
+		amx_GetAddr(amx, params[9], &pAddress);
+		*pAddress = Road.getNextNode()->getId();
+		return 1;
+	}
+	return 0;
+}
+
+//ROAD_Get(node, child)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_Get(AMX * amx, cell * params)
+{
+	nodeId index = params[1];
+	int child = params[2];
+	cell Road = 0xFFFFFFFF;
+	if (!(0 <= index && index < RoadPath::size())) return Road;
+	roadNode *node = RoadPath::getNode(index);
+	if (node->getId() == ROAD_NOT || !node->isChild(child)) return Road;
+
+	Road = index | (node->getChild(child)->getId() << 16);
+	return Road;
+}
+
+
