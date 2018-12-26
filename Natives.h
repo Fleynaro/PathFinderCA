@@ -10,6 +10,7 @@ extern bool inited;
 extern int ticked;
 extern int maxTicked;
 extern std::vector<AMX*> amxList;
+extern CA_API *api;
 
 class Natives
 {
@@ -41,6 +42,8 @@ public:
 	~RoadNatives();
 
 	static cell AMX_NATIVE_CALL ROAD_Create(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_SetStartNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_SetFinalNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_Remove(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_Find(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_FindNow(AMX* amx, cell* params);
@@ -48,6 +51,7 @@ public:
 	static cell AMX_NATIVE_CALL ROAD_AddNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_GetNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_RemoveNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_FixRoads(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_GetNormalPointToRoad(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_FindNearbyRoad(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_Get(AMX* amx, cell* params);

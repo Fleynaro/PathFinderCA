@@ -6,10 +6,9 @@
 
 
 
-genPath::genPath(CA_API *api)
+genPath::genPath()
 {
 	this->pathData = new std::deque <pathPoint*>;
-	this->api = api;
 	this->world = 0;
 }
 

@@ -14,7 +14,7 @@
 //----------------------------------------------------------
 //                         Class
 //----------------------------------------------------------
-Controller::Controller(CA_API *api)
+Controller::Controller()
 {
 	//Thread (Список потоков. Это классы в векторе)
 	this->threadList = new std::vector<Thread*>; //Подробнее про векторы здесь http://cppstudio.com/post/8453/
@@ -28,8 +28,6 @@ Controller::Controller(CA_API *api)
 	//Init global mutexes
 	this->workQueue = new std::mutex();
 	this->callbackQueue = new std::mutex();
-
-	this->api = api;
 }
 Controller::~Controller() //Выгрузка. Удаление всего и вся
 {

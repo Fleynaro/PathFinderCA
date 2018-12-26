@@ -17,7 +17,7 @@
 class Controller
 {
 public:
-	Controller(CA_API *api);
+	Controller();
 	~Controller();
 	template <typename T_path> int CreatePath(char *name) {
 		if (this->paths->size() >= MAX_PATHS_CREATED) return 0;
@@ -30,7 +30,7 @@ public:
 			id++;
 		}
 
-		genPath *path = new T_path(this->api);
+		genPath *path = new T_path();
 		path->uID = rand();
 
 		path->callback = name;
@@ -54,7 +54,6 @@ public:
 private:
 	std::vector<Thread*> *threadList;
 	std::map<int, genPath*> *paths;
-	CA_API *api;
 };
 
 

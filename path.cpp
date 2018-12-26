@@ -13,7 +13,7 @@
 
 
 
-Path::Path(CA_API *api) : genPath(api)
+Path::Path()
 {
 	this->mapData = new std::map <int, mapPoint*>;
 	
@@ -63,7 +63,7 @@ void Path::SetBeginRelativeCoord(float x, float y, int width = 10, int height = 
 bool Path::Check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z)
 {
 	//this->api->CA_GetMutex()->lock();
-	bool result = this->api->CA_RayCastLine(x1, y1, z1, x2, y2, z2, x, y, z, this->GetWorld()) != 0;
+	bool result = api->CA_RayCastLine(x1, y1, z1, x2, y2, z2, x, y, z, this->GetWorld()) != 0;
 	//this->api->CA_GetMutex()->unlock();
 	return result;
 }

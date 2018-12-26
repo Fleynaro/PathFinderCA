@@ -20,7 +20,7 @@ struct mapPoint;
 class Path : public genPath
 {
 public:
-	Path(CA_API *api);
+	Path();
 	std::map<int, mapPoint*> *mapData;
 	
 	int id, type;
@@ -49,7 +49,6 @@ public:
 
 	~Path();
 private:
-	CA_API *api;
 };
 
 struct mapPoint

@@ -9,7 +9,7 @@
 typedef unsigned short int nodeId;
 
 #define MAX_ROAD_NODES 30000
-#define ROAD_NOT (0xFFFF - 1)
+#define ROAD_NOT 0xFFFF
 
 struct roadNode;
 struct roadPathNode;
@@ -25,14 +25,21 @@ public:
 	static int size() {
 		return RoadPath::lastNodeId;
 	};
-	RoadPath(CA_API *api);
+	RoadPath();
 	~RoadPath();
 
+	void setStart(nodeId index) {
+		startNode = getNode(index);
+	}
+	void setFinal(nodeId index) {
+		finalNode = getNode(index);
+	}
 	void addPathNode(nodeId index, roadPathNode *pathNode);
 	roadPathNode *getPathNode(roadNode *node, bool open = false);
 	bool isPathNode(nodeId index);
 	std::vector <roadPathNode*> openPathNodes(roadPathNode *parentNode);
 
+	void createPath(roadPathNode *node);
 	void Find() override;
 	void Destroy() override;
 private:
@@ -109,6 +116,11 @@ public:
 	}
 	float getZ() {
 		return this->z;
+	}
+	void setPos(float x, float y, float z) {
+		this->x = x;
+		this->y = y;
+		this->z = z;
 	}
 	bool isMultiple() {
 		return (this->isChild(2) || this->isChild(3)) || this->isEnd();

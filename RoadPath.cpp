@@ -3,7 +3,7 @@
 roadNode RoadPath::nodes[MAX_ROAD_NODES];
 nodeId RoadPath::lastNodeId;
 
-RoadPath::RoadPath(CA_API *api) : genPath(api)
+RoadPath::RoadPath()
 {
 	this->PATH_SIZE = 1500;
 }
@@ -66,14 +66,34 @@ void RoadPath::Find()
 				return;
 			}
 		}
+
+		if (this->pathNodes.size() > (size_t)this->PATH_SIZE) {
+			this->status = NOT_FOUND;
+			return;
+		}
 	}
 
-	this->status = FOUND;
+	this->createPath(currentNode);
 }
 
-void RoadPath::Destroy()
+void RoadPath::createPath(roadPathNode *node)
 {
-	delete this;
+	int i = 0;
+	while (i < this->PATH_SIZE) {
+		if ( node == NULL ) {
+			this->status = FOUND;
+			return;
+		}
+		
+		this->pathData->push_back(new pathPoint(
+			node->getNode()->getX(),
+			node->getNode()->getY(),
+			node->getNode()->getZ()
+		));
+		node = node->getParent();
+		i++;
+	}
+	this->status = NOT_FOUND;
 }
 
 std::vector <roadPathNode*> RoadPath::openPathNodes(roadPathNode *parentNode)
@@ -189,22 +209,26 @@ std::queue<roadNode*> road::getNodesTo(roadNode *finalNode)
 	return nodes;
 }
 
-bool road::getNormalPoint(float X, float Y, float &x, float &y, float &z)
+bool road::getNormalPoint(float X, float Y, float &fx, float &fy, float &fz)
 {
 	roadNode
 		*node1 = this->getParentNode(),
 		*node2 = this->getNextNode();
 	double
-		k1 = (node2->getY() - node1->getY()) / (node1->getX() == node2->getX() ? 0.00001 : (node1->getX() - node2->getX())),
+		k1 = (node2->getY() - node1->getY()) / (node1->getX() == node2->getX() ? 0.000000001 : (node1->getX() - node2->getX())),
 		b1 = node1->getY() + node1->getX() * k1,
-		k2 = -1 / (k1 == 0 ? 0.00001 : k1),
+		k2 = -1 / (k1 == 0 ? 0.000000001 : k1),
 		b2 = Y + X * k2;
 
-	x = (b2 - b1) / (k2 - k1);
-	y = -k1 * x + b1;
-	z = (node2->getZ() + node1->getZ()) / (float)2.0;
+	double x = (b2 - b1) / (k2 - k1);
+	double y = -k1 * x + b1;
+	double z = (node2->getZ() + node1->getZ()) / 2.;
+	fx = (float)x;
+	fy = (float)y;
+	fz = (float)z;
 
-	return ((node1->getX() <= x && x <= node2->getX()) || (node1->getX() >= x && x >= node2->getX())) && ((node1->getY() <= y && y <= node2->getY()) || (node1->getY() >= y && y >= node2->getY()));
+	//logprintf("ROAD(%i, %i): %f < %f < %f && %f < %f < %f", node1->getId(), node2->getId(), node1->getX() - 0.0001, x, node2->getX() + 0.0001, node1->getY() - 0.0001, y, node2->getY() + 0.0001);
+	return ((node1->getX() - 0.0001 <= x && x <= node2->getX() + 0.0001) || (node1->getX() - 0.0001 >= x && x >= node2->getX() + 0.0001)) && ((node1->getY() - 0.0001 <= y && y <= node2->getY() + 0.0001) || (node1->getY() - 0.0001 >= y && y >= node2->getY() + 0.0001));
 }
 
 road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, float &fy, float &fz, float minRadius)
@@ -217,7 +241,7 @@ road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, fl
 	for (int i = 0, size = RoadPath::size(); i < size; i++) {
 		roadNode *node = RoadPath::getNode(i);
 		float dist = node->getDist2To(x, y, z);
-		if (dist <= 100.0*100.0) {
+		if (dist <= 50.0*50.0) {
 			for (int j = 0; j < 4; j++) {
 				roadNode *child = node->getChild(j);
 				if (child == NULL) break;
@@ -240,7 +264,7 @@ road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, fl
 		}
 		if (dist < minDist) {
 			minDist = dist;
-			Road = road(node, NULL);
+			Road = road(node, node);
 			fx = node->getX();
 			fy = node->getY();
 			fz = node->getZ();
@@ -260,6 +284,8 @@ void RoadPath::fixRoads()
 	std::vector<int> passed;
 	for (int i = 0, size = RoadPath::size(); i < size; i++) {
 		roadNode *node = RoadPath::getNode(i);
+		if (node == NULL) continue;
+		
 		if ( node->isMultiple() ) {
 			passed.push_back(i);
 			for (int j = 0; j < 4; j++) {
@@ -285,6 +311,10 @@ void RoadPath::fixRoads()
 				}
 			}
 		}
+
+		float x, y, z;
+		api->CA_RayCastLine(node->getX(), node->getY(), node->getZ() + (float)1.5, node->getX(), node->getY(), node->getZ() - (float)3.0, x, y, z, 0);
+		node->setPos(x, y, z);
 	}
 }
 
@@ -309,6 +339,14 @@ void RoadPath::removeNode(nodeId index)
 	}
 }
 
+void RoadPath::Destroy()
+{
+	delete this;
+}
+
 RoadPath::~RoadPath()
 {
+	for (auto &pNode : this->pathNodes) {
+		delete pNode.second;
+	}
 }

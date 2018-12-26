@@ -5,12 +5,18 @@
 #include "main.h"
 #include <algorithm>
 
-
+extern CA_API *api;
 
 
 struct pathPoint
 {
-	float x, y, z;
+	float x = 0.0, y = 0.0, z = 0.0;
+	pathPoint() {}
+	pathPoint(float x, float y, float z) {
+		this->x = x;
+		this->y = y;
+		this->z = z;
+	}
 };
 
 class genPath
@@ -19,7 +25,7 @@ public:
 	enum status { FOUND, NOT_FOUND, PROCESS };
 	status status;
 
-	genPath(CA_API *api);
+	genPath();
 	std::deque <pathPoint*> *pathData;
 	std::string callback;
 	std::deque<cell> params;
@@ -33,5 +39,4 @@ public:
 	virtual void Destroy() = 0;
 private:
 	int world;
-	CA_API *api;
 };

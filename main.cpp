@@ -28,6 +28,7 @@ int ticked = 0;
 int maxTicked = 10;
 std::vector<AMX*> amxList;
 Controller *pController;
+CA_API *api;
 //----------------------------------------------------------
 // Main Plugin Data
 //----------------------------------------------------------
@@ -85,14 +86,19 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "PF_FindNow",					Natives::PF_FindNow },
 	{ "PF_GetPoint",				Natives::PF_GetPoint },
 	{ "PF_SetTickRate",				Natives::PF_SetTickRate },
+
 	{ "ROAD_Create",				RoadNatives::ROAD_Create },
+	{ "ROAD_SetStartNode",			RoadNatives::ROAD_SetStartNode },
+	{ "ROAD_SetFinalNode",			RoadNatives::ROAD_SetFinalNode },
 	{ "ROAD_Remove",				RoadNatives::ROAD_Remove },
-	{ "ROAD_Find",					RoadNatives::ROAD_Find },
+	{ "ROAD_Find2",					RoadNatives::ROAD_Find },
 	{ "ROAD_FindNow",				RoadNatives::ROAD_FindNow },
+	{ "ROAD_GetPoint",				RoadNatives::ROAD_GetPoint },
 	{ "ROAD_AddNode",				RoadNatives::ROAD_AddNode },
 	{ "ROAD_GetNode2",				RoadNatives::ROAD_GetNode },
 	{ "ROAD_GetNormalPointToRoad2",	RoadNatives::ROAD_GetNormalPointToRoad },
 	{ "ROAD_FindNearbyRoad2",		RoadNatives::ROAD_FindNearbyRoad },
+	{ "ROAD_FixRoads2",				RoadNatives::ROAD_FixRoads },
 	{ "ROAD_Get",					RoadNatives::ROAD_Get },
 	{ 0,                        0 }
 };
