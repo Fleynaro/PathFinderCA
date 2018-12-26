@@ -37,9 +37,10 @@ public:
 	void addPathNode(nodeId index, roadPathNode *pathNode);
 	roadPathNode *getPathNode(roadNode *node, bool open = false);
 	bool isPathNode(nodeId index);
-	std::vector <roadPathNode*> openPathNodes(roadPathNode *parentNode);
+	void openPathNodes(roadPathNode *parentNode, std::vector <roadPathNode*> *openNodes);
 
 	void createPath(roadPathNode *node);
+	void createSmoothPath(roadPathNode *node);
 	void Find() override;
 	void Destroy() override;
 private:
@@ -48,50 +49,6 @@ private:
 	std::map<nodeId, roadPathNode*> pathNodes;
 	roadNode *startNode;
 	roadNode *finalNode;
-};
-
-
-
-struct roadPathNode
-{
-public:
-	roadPathNode(RoadPath *path, roadNode *node, roadPathNode *parentNode)
-	{
-		this->path = path;
-		this->node = node;
-		this->setParent(parentNode);
-	}
-
-	bool isOpen() {
-		return this->getParent() != NULL;
-	}
-	bool isClosed() {
-		return this->closed;
-	}
-	void close() {
-		this->closed = true;
-	}
-	float getDist() {
-		return this->dist;
-	}
-	void setDist(float value) {
-		this->dist = value;
-	}
-	roadPathNode *getParent() {
-		return this->parentNode;
-	}
-	void setParent(roadPathNode *parentNode) {
-		this->parentNode = parentNode;
-	}
-	roadNode *getNode() {
-		return this->node;
-	}
-private:
-	roadNode *node;
-	roadPathNode *parentNode;
-	RoadPath *path;
-	bool closed = false;
-	float dist = 0.0;
 };
 
 struct roadNode
@@ -168,6 +125,51 @@ private:
 	nodeId id = ROAD_NOT;
 	float x, y, z;
 	nodeId child[4];
+};
+
+
+struct roadPathNode
+{
+public:
+	roadPathNode(roadNode *node, roadPathNode *parentNode)
+	{
+		this->node = node;
+		this->setParent(parentNode);
+	}
+
+	bool isOpen() {
+		return this->getParent() != NULL;
+	}
+	bool isClosed() {
+		return this->closed;
+	}
+	void close(std::vector <roadPathNode*> *openNodes) {
+		this->closed = true;
+		openNodes->erase(std::remove(openNodes->begin(), openNodes->end(), this), openNodes->end());
+	}
+	float getDist() {
+		return this->dist;
+	}
+	float getF(roadPathNode *node) {
+		return this->getDist() + this->getNode()->getDist(node->getNode());
+	}
+	void setDist(float value) {
+		this->dist = value;
+	}
+	roadPathNode *getParent() {
+		return this->parentNode;
+	}
+	void setParent(roadPathNode *parentNode) {
+		this->parentNode = parentNode;
+	}
+	roadNode *getNode() {
+		return this->node;
+	}
+private:
+	roadNode * node;
+	roadPathNode *parentNode;
+	bool closed = false;
+	float dist = 0.0;
 };
 
 

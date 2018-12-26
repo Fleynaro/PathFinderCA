@@ -16,7 +16,7 @@ roadPathNode *RoadPath::getPathNode(roadNode *node, bool open)
 		return i->second;
 	} else {
 		if (open) {
-			roadPathNode *pathNode = new roadPathNode(this, node, NULL);
+			roadPathNode *pathNode = new roadPathNode(node, NULL);
 			this->addPathNode(node->getId(), pathNode);
 			return pathNode;
 		}
@@ -42,29 +42,35 @@ void RoadPath::Find()
 	roadPathNode
 		*currentNode = this->getPathNode(this->startNode, true),
 		*finalNode = this->getPathNode(this->finalNode, true);
+	//logprintf("RoadPath::Find(): currentNode = %i, finalNode=%i(%i)", currentNode->getNode()->getId(), finalNode->getNode()->getId(), finalNode->getNode()->isMultiple());
+	std::vector <roadPathNode*> openNodes;
 	while (currentNode != finalNode)
 	{
-		currentNode->close();
+		currentNode->close(&openNodes);
 
-		float minDist = std::numeric_limits<float>::max();
-		std::vector <roadPathNode*> nodes = this->openPathNodes(currentNode);
+		float minF = std::numeric_limits<float>::max();
+		//logprintf("--------- currentNode = %i", currentNode->getNode()->getId());
+		this->openPathNodes(currentNode, &openNodes);
 		roadPathNode* nextNode = NULL;
-		for (const auto &node : nodes) {
-			float dist = node->getNode()->getDist2(this->finalNode);
-			if (dist < minDist) {
-				minDist = dist;
+		for (const auto &node : openNodes) {
+			float f = node->getF(finalNode);
+			//logprintf("-------------- node = %i, f=%f(dist=%f,d2=%f)", node->getNode()->getId(), f, node->getDist(), node->getNode()->getDist(finalNode->getNode()));
+			if (f < minF) {
+				minF = f;
 				nextNode = node;
 			}
 		}
+		//logprintf("--------- nodes.size() = %i, minF=%f", nodes.size(), minF);
 		if (nextNode != NULL) {
 			currentNode = nextNode;
 		}
 		else {
-			currentNode = nextNode->getParent();
 			if (currentNode == NULL) {
 				this->status = NOT_FOUND;
 				return;
 			}
+			currentNode = currentNode->getParent();
+			//logprintf("--------- go back to %i", currentNode->getParent()->getNode()->getId());
 		}
 
 		if (this->pathNodes.size() > (size_t)this->PATH_SIZE) {
@@ -73,6 +79,7 @@ void RoadPath::Find()
 		}
 	}
 
+	//logprintf("PATH FORMED. SIZE %i, last id = %i", this->pathNodes.size(), currentNode->getNode()->getId());
 	this->createPath(currentNode);
 }
 
@@ -96,28 +103,49 @@ void RoadPath::createPath(roadPathNode *node)
 	this->status = NOT_FOUND;
 }
 
-std::vector <roadPathNode*> RoadPath::openPathNodes(roadPathNode *parentNode)
+void RoadPath::createSmoothPath(roadPathNode *node)
 {
-	std::vector <roadPathNode*> nodes;
+	int i = 0;
+	while (i < this->PATH_SIZE) {
+		if (node == NULL) {
+			this->status = FOUND;
+			return;
+		}
 
+
+
+		this->pathData->push_back(new pathPoint(
+			node->getNode()->getX(),
+			node->getNode()->getY(),
+			node->getNode()->getZ()
+		));
+		node = node->getParent();
+		i++;
+	}
+	this->status = NOT_FOUND;
+}
+
+void RoadPath::openPathNodes(roadPathNode *parentNode, std::vector <roadPathNode*> *openNodes)
+{
 	float parentDist = parentNode->getDist();
 	for (int i = 0; i < 4; i++) {
-		if (parentNode->getNode()->isChild(i)) break;
-		float dist = 0.0;
-		road childRoad = parentNode->getNode()->getMultipleNode(i, dist);
-		if (!childRoad.isValid()) continue;
+		if (!parentNode->getNode()->isChild(i)) break;
+		roadNode *childNode = parentNode->getNode()->getChild(i);
+		//logprintf("------------ child = %i (parentDist=%f)", i, parentDist);
 
-		roadPathNode* node = this->getPathNode(childRoad.getParentNode(), true);
-		
-		float totalDist = parentDist + dist;
+		roadPathNode* node = this->getPathNode(childNode, true);
+		float totalDist = parentDist + childNode->getDist(parentNode->getNode());
 		if (!node->isClosed()) {
 			if (!node->isOpen() || totalDist < node->getDist()) {
+				if (!node->isOpen()) {
+					openNodes->push_back(node);
+				}
 				node->setDist(totalDist);
 				node->setParent(parentNode);
 			}
+			//logprintf("---------------> nodeId = %i, totalDist=%f(dist=%f) (parentNode=%i)", node->getNode()->getId(), totalDist, childNode->getDist(parentNode->getNode()), parentNode->getNode()->getId());
 		}
 	}
-	return nodes;
 }
 
 
@@ -127,7 +155,7 @@ road roadNode::getMultipleNode(int child, float &distance)
 	roadNode
 		*parentNode = this,
 		*childNode = this->getChild(child);
-	while (childNode != NULL && childNode->isMultiple()) {
+	while (childNode != NULL && !childNode->isMultiple()) {
 		distance += childNode->getDist(parentNode);
 
 		if (childNode->getChild(0) != parentNode) {
@@ -138,11 +166,11 @@ road roadNode::getMultipleNode(int child, float &distance)
 			childNode = childNode->getChild(1);
 		}
 	}
-	distance += childNode->getDist(parentNode);
-	
 	if (childNode == NULL) {
 		return road(0);
 	}
+
+	distance += childNode->getDist(parentNode);
 	return road(childNode, parentNode);
 }
 
@@ -151,7 +179,7 @@ road roadNode::getMultipleNode(int child, roadNode *excludeNode)
 	roadNode
 		*parentNode = this,
 		*childNode = this->getChild(child);
-	while (childNode != NULL && childNode->isMultiple()) {
+	while (childNode != NULL && !childNode->isMultiple()) {
 		if (childNode == excludeNode) {
 			return road(0);
 		}
@@ -313,8 +341,9 @@ void RoadPath::fixRoads()
 		}
 
 		float x, y, z;
-		api->CA_RayCastLine(node->getX(), node->getY(), node->getZ() + (float)1.5, node->getX(), node->getY(), node->getZ() - (float)3.0, x, y, z, 0);
-		node->setPos(x, y, z);
+		if (api->CA_RayCastLine(node->getX(), node->getY(), node->getZ() + (float)1.5, node->getX(), node->getY(), node->getZ() - (float)20.0, x, y, z, 0) != 0) {
+			node->setPos(x, y, z);
+		}
 	}
 }
 

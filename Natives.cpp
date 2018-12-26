@@ -237,13 +237,13 @@ cell AMX_NATIVE_CALL Natives::PF_Find(AMX* amx, cell* params)
 		if (!pController->IsPathValid(id)) {
 			return 0;
 		}
-
+		
 		//Lock
 		pController->workQueue->lock();
 
 		//Send (Добавляем в очередь)
-		pController->qPath->push(pController->GetPath<Path>(id));
-		//logprintf("name %s(%i)", pController->GetPath(id)->callback, id);
+		//logprintf("name %s(%i)", pController->GetPath<genPath>(id)->callback, id);
+		pController->qPath->push(pController->GetPath<genPath>(id));
 
 		//Unlock
 		pController->workQueue->unlock();
