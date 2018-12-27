@@ -2,8 +2,9 @@
 
 
 #include "genPath.h"
-#include <cmath>
+#include "geometry.h"
 #include <limits>
+
 #undef max
 
 typedef unsigned short int nodeId;
@@ -18,6 +19,8 @@ struct road;
 class RoadPath : public genPath
 {
 public:
+	enum mode { DEFAULT, SMOOTH };
+	RoadPath::mode Mode;
 	static void fixRoads();
 	static roadNode *getNode(nodeId index);
 	static void addNode(nodeId index, roadNode node);
@@ -99,6 +102,9 @@ public:
 	}
 	float getDist(roadNode *node) {
 		return sqrt(this->getDist2(node));
+	}
+	float getAngleXY(roadNode *node) {
+		return atan2(node->getY() - this->getY(), node->getX() - this->getX());
 	}
 	void setChild(int index, nodeId index2) {
 		this->child[index] = index2;
@@ -197,6 +203,13 @@ public:
 	road getNearbyMultipleNode();
 	bool getNormalPoint(float X, float Y, float &x, float &y, float &z);
 	static road findNearbyRoad(float x, float y, float z, float radius, float &fx, float &fy, float &fz, float minRadius = 0.0);
+	Vector3D getVector() {
+		return Vector3D(
+			this->getNextNode()->getX() - this->getParentNode()->getX(),
+			this->getNextNode()->getY() - this->getParentNode()->getY(),
+			this->getNextNode()->getZ() - this->getParentNode()->getZ()
+		);
+	}
 private:
 	roadNode *parentNode;
 	roadNode *nextNode;

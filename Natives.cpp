@@ -328,7 +328,7 @@ RoadNatives::~RoadNatives()
 {
 }
 
-//ROAD_Create(callback[], path_size = 1500, params[] = "", {Float,_}:...)
+//ROAD_Create(callback[], mode = 0, path_size = 1500, params[] = "", {Float,_}:...)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_Create(AMX * amx, cell * params)
 {
 	if (!inited) return 0;
@@ -342,15 +342,16 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_Create(AMX * amx, cell * params)
 		}
 
 		RoadPath *path = pController->GetPath<RoadPath>(id);
-		path->PATH_SIZE = params[2];
+		path->Mode = static_cast<RoadPath::mode>(params[2]);
+		path->PATH_SIZE = params[3];
 
 		char *format;
-		amx_StrParam(amx, params[3], format);
+		amx_StrParam(amx, params[4], format);
 		if (format) {
 			std::deque<cell> deq_params;
 			cell *addr_params;
 
-			const int offset = 4;
+			const int offset = 5;
 			for (int i = strlen(format); --i != -1;) {
 				switch (format[i])
 				{

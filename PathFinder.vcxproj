@@ -88,6 +88,7 @@
     <ClCompile Include="CA_API.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="genPath.cpp" />
+    <ClCompile Include="geometry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Natives.cpp" />
     <ClCompile Include="path.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="controller.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="genPath.h" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Natives.h" />
     <ClInclude Include="path.h" />

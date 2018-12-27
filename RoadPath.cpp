@@ -80,7 +80,11 @@ void RoadPath::Find()
 	}
 
 	//logprintf("PATH FORMED. SIZE %i, last id = %i", this->pathNodes.size(), currentNode->getNode()->getId());
-	this->createPath(currentNode);
+	switch (this->Mode)
+	{
+		case mode::DEFAULT: this->createPath(currentNode); break;
+		case mode::SMOOTH: this->createSmoothPath(currentNode); break;
+	}
 }
 
 void RoadPath::createPath(roadPathNode *node)
@@ -105,24 +109,144 @@ void RoadPath::createPath(roadPathNode *node)
 
 void RoadPath::createSmoothPath(roadPathNode *node)
 {
+	logprintf("createSmoothPath:");
+	std::deque <roadPathNode*> smoothPath;
 	int i = 0;
 	while (i < this->PATH_SIZE) {
 		if (node == NULL) {
 			this->status = FOUND;
-			return;
+			break;
 		}
-
-
-
-		this->pathData->push_back(new pathPoint(
-			node->getNode()->getX(),
-			node->getNode()->getY(),
-			node->getNode()->getZ()
-		));
+		logprintf("----->(%i) node = %i", i, node->getNode()->getId());
+		smoothPath.push_back(node);
 		node = node->getParent();
 		i++;
 	}
-	this->status = NOT_FOUND;
+	if (i == this->PATH_SIZE || i <= 2) {
+		this->status = NOT_FOUND;
+		return;
+	}
+
+	logprintf("---- smoothing...");
+
+	roadPathNode *firstNode, *middleNode;
+	firstNode = smoothPath.back();
+	smoothPath.pop_back();
+	middleNode = smoothPath.back();
+	smoothPath.pop_back();
+	this->pathData->push_back(new pathPoint(
+		firstNode->getNode()->getX(),
+		firstNode->getNode()->getY(),
+		firstNode->getNode()->getZ()
+	));
+
+	while (!smoothPath.empty())
+	{
+		roadPathNode *lastNode = smoothPath.back();
+		road
+			firstRoad(firstNode->getNode(), middleNode->getNode()),
+			secondRoad(middleNode->getNode(), lastNode->getNode());
+		if (firstRoad.isValid() && secondRoad.isValid())
+		{
+			float betweenAngle = abs(firstRoad.getVector().getAngleBetweenXY(&secondRoad.getVector()));
+			if (betweenAngle > 90.0) { //finding the acute angle
+				betweenAngle = (float)180.0 - betweenAngle;
+			}
+			logprintf("------>firstNode = %i, middleNode=%i, lastNode=%i: betweenAngle=%f", firstNode->getNode()->getId(), middleNode->getNode()->getId(), lastNode->getNode()->getId(), betweenAngle);
+			if (betweenAngle > 30.0)
+			{
+				road roadVector(firstNode->getNode(), lastNode->getNode()); //create a vector as a road
+				float
+					alpha = firstRoad.getVector().getAngleXY(),
+					delta = roadVector.getVector().getAngleXY(),
+					vectorLong = roadVector.getVector().getLongXY(), //long of a vector created by lastNode and firstNode
+					relNX = cos(delta - alpha) * vectorLong,
+					relNY = sin(delta - alpha) * vectorLong;
+				short int
+					relNXsign = geometry::sign(relNX),
+					relNYsign = geometry::sign(relNY);
+				relNX = abs(relNX),
+				relNY = abs(relNY);
+
+				double square = relNX / 3.0;
+				if (square > 3.0) {
+					square = 3.0;
+				}
+				float
+					b = float(log(relNY / square) / log(relNX / (relNX - square))),
+					a = relNY / pow(relNX, b);
+				if (a <= 0.001) a = (float)0.001;
+				logprintf("--------->relNX=%f,relNY=%f(sign = %i,%i) vectorLong=%f, alpha=%f,delta=%f; a=%f,b=%f", relNX, relNY, relNXsign, relNYsign, vectorLong, alpha, delta, a, b);
+
+				const float step = 0.5;
+				float
+					rx = step,
+					rdist = 0.0;
+				while (rx < relNX) {
+					float
+						xb = pow(rx, b),
+						ry = a * xb;
+					if (ry > 50.0) break;
+					float f = ry - pow(rx - step, b) * a;
+					rdist += sqrt(step*step + f*f);
+
+					if (rdist >= 2.5) {
+						float
+							rv = sqrt(rx * rx + ry * ry),
+							beta = atan2(ry * relNYsign, rx * relNXsign),
+							wx = firstNode->getNode()->getX() + rv * cos(beta + alpha),
+							wy = firstNode->getNode()->getY() + rv * sin(beta + alpha),
+							wz = firstNode->getNode()->getZ() + (lastNode->getNode()->getZ() - firstNode->getNode()->getZ()) * rx / relNX;
+
+						if (api->CA_RayCastLine(wx, wy, wz + (float)10.0, wx, wy, wz - (float)10.0, wx, wy, wz, 0) != 0) {
+							this->pathData->push_back(new pathPoint(wx, wy, wz));
+							logprintf("ADD ------------->x=%f,y=%f,z=%f", wx, wy, wz);
+						}
+					}
+					else if (rdist > 20.0) {
+						break;
+					}
+					rx += step;
+				}
+			}
+			else {
+				const float
+					height = float(5.0), //height
+					deltaR = float(5.0), //max dist between nodes
+					k = float(0.7); //Если дорога поделена на 0.7x и 1.0x, где 0.7x = kx
+
+				float parts = firstRoad.getVector().getLong2() / (deltaR * deltaR);
+				if (parts > geometry::sq(float(1.0) + k)) {
+					parts = sqrt(parts);
+					logprintf("---------->parts=%f", parts);
+					float j = 1.0;
+					while (j + k < parts) {
+						Vector3D v = firstRoad.getVector();
+						float
+							wx = firstNode->getNode()->getX() + v.getX() / parts * j,
+							wy = firstNode->getNode()->getY() + v.getY() / parts * j,
+							wz = firstNode->getNode()->getZ() + v.getZ() / parts * j;
+						logprintf("---------->wx=%f,wy=%f,wz=%f", wx, wy, wz);
+						if (api->CA_RayCastLine(wx, wy, wz + height, wx, wy, wz - height, wx, wy, wz, 0) != 0) {
+							this->pathData->push_back(new pathPoint(wx, wy, wz));
+							logprintf("ADD ------------->x=%f,y=%f,z=%f", wx, wy, wz);
+						}
+						j += 1.0;
+					}
+				}
+				this->pathData->push_back(new pathPoint(
+					middleNode->getNode()->getX(),
+					middleNode->getNode()->getY(),
+					middleNode->getNode()->getZ()
+				));
+				logprintf("ADD ------------->x=%f,y=%f,z=%f", middleNode->getNode()->getX(), middleNode->getNode()->getY(), middleNode->getNode()->getZ());
+			}
+		}
+		
+		firstNode = middleNode;
+		middleNode = lastNode;
+		smoothPath.pop_back();
+	}
 }
 
 void RoadPath::openPathNodes(roadPathNode *parentNode, std::vector <roadPathNode*> *openNodes)

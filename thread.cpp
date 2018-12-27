@@ -114,13 +114,13 @@ void Thread::PathCalculator()
 			//Send data - lock mutex
 			callbackQueue->lock();
 
-			if (tempPath->status == Path::FOUND)
+			if (tempPath->status == Path::state::FOUND)
 			{
 				//logprintf("success found... %i", tempPath->uID);
 				//Создаем данные для отправки уже потом в павн через callback
 				callbackWorkerData *tempCallbackWorker = new callbackWorkerData();
 				tempCallbackWorker->name = tempPath->callback;
-				tempCallbackWorker->resultCode = Path::FOUND;
+				tempCallbackWorker->resultCode = Path::state::FOUND;
 				tempCallbackWorker->params = tempPath->params;
 				
 				//Init
