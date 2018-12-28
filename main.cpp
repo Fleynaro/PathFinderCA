@@ -98,6 +98,8 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "ROAD_GetNode",				RoadNatives::ROAD_GetNode },
 	{ "ROAD_GetNormalPointToRoad_",	RoadNatives::ROAD_GetNormalPointToRoad },
 	{ "ROAD_FindNearbyRoad_",		RoadNatives::ROAD_FindNearbyRoad },
+	{ "ROAD_FindInvisibleNode",		RoadNatives::ROAD_FindInvisibleNode },
+	{ "ROAD_GetMultipleNode",		RoadNatives::ROAD_GetMultipleNode },
 	{ "ROAD_FixRoads",				RoadNatives::ROAD_FixRoads },
 	{ "ROAD_Get",					RoadNatives::ROAD_Get },
 	{ 0,                        0 }
@@ -177,6 +179,7 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 
 						//other data
 						amx_Push(*a, tempCallbackWorker->resultCode);
+						amx_Push(*a, amx_ftoc(tempCallbackWorker->genDist));
 						amx_Exec(*a, NULL, pathCallbackIndex);
 
 						//free

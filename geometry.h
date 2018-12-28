@@ -60,3 +60,32 @@ private:
 	float x, y, z;
 };
 
+class Point3D
+{
+public:
+	Point3D() {};
+	Point3D(float x, float y, float z, int world = 0) {
+		this->x = x;
+		this->y = y;
+		this->z = z;
+		this->world = world;
+	}
+	~Point3D() {};
+	float getX() {
+		return this->x;
+	}
+	float getY() {
+		return this->y;
+	}
+	float getZ() {
+		return this->z;
+	}
+	int getWorld() {
+		return this->world;
+	}
+private:
+	float x, y, z;
+	int world = 0;
+};
+
+

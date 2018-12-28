@@ -147,6 +147,7 @@ void Path::Find()
 			return;
 		}
 	}
+	this->setGenDist(point->G * this->cellSize);
 	//logprintf("yes! CreatePath");
 
 	for (std::map<int, mapPoint*>::iterator i = this->mapData->begin(); i != this->mapData->end(); ++i)

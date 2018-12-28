@@ -562,6 +562,44 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FindNearbyRoad(AMX * amx, cell * params)
 	return 0;
 }
 
+//ROAD_FindInvisibleNode(index, Float:points_x[], Float:points_y[], Float:points_z[], const size = sizeof(points_x))
+cell AMX_NATIVE_CALL RoadNatives::ROAD_FindInvisibleNode(AMX * amx, cell * params)
+{
+	nodeId
+		startNode = params[1];
+	if (!(0 <= startNode && startNode < RoadPath::size())) return ROAD_NOT;
+	std::vector <Point3D*> points;
+
+	cell *pAddressX = NULL;
+	cell *pAddressY = NULL;
+	cell *pAddressZ = NULL;
+	amx_GetAddr(amx, params[2], &pAddressX);
+	amx_GetAddr(amx, params[3], &pAddressY);
+	amx_GetAddr(amx, params[4], &pAddressZ);
+
+	int iSize = static_cast<int>(params[5]);
+	for (int i = 0; i < iSize; i++) {
+		float
+			x = amx_ctof(*(pAddressX + i)),
+			y = amx_ctof(*(pAddressY + i)),
+			z = amx_ctof(*(pAddressZ + i));
+		points.push_back(&Point3D(x, y, z));
+	}
+
+	roadNode *node = roadNode::getInvisibleNode(&points, RoadPath::getNode(startNode));
+	if (node == NULL) return ROAD_NOT;
+	return node->getId();
+}
+
+//ROAD_GetMultipleNode(index, child)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_GetMultipleNode(AMX * amx, cell * params)
+{
+	nodeId
+		node = params[1];
+	if (!(0 <= node && node < RoadPath::size())) return ROAD_NOT;
+	return RoadPath::getNode(node)->getMultipleNode(params[2]).get();
+}
+
 //ROAD_Get(node, child)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_Get(AMX * amx, cell * params)
 {

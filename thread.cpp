@@ -122,6 +122,7 @@ void Thread::PathCalculator()
 				tempCallbackWorker->name = tempPath->callback;
 				tempCallbackWorker->resultCode = Path::state::FOUND;
 				tempCallbackWorker->params = tempPath->params;
+				tempCallbackWorker->genDist = tempPath->getGenDist();
 				
 				//Init
 				tempCallbackWorker->nodeX = new std::vector<cell>;
@@ -160,6 +161,8 @@ void Thread::PathCalculator()
 				tempCallbackWorker->nodeX->push_back(0);
 				tempCallbackWorker->nodeY->push_back(0);
 				tempCallbackWorker->nodeZ->push_back(0);
+
+				tempCallbackWorker->genDist = 0.0;
 
 				qCallback->push(tempCallbackWorker);
 			}

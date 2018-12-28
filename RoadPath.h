@@ -127,6 +127,8 @@ public:
 
 	road getMultipleNode(int child, float &distance);
 	road getMultipleNode(int child, roadNode *exclude = NULL);
+	static roadNode *getInvisibleNode(std::vector <Point3D*> *points, roadNode *node, roadNode *parentNode = NULL, int level = 0);
+	bool isInvisible(std::vector <Point3D*> *points, int world = 0);
 private:
 	nodeId id = ROAD_NOT;
 	float x, y, z;
@@ -192,6 +194,10 @@ public:
 	}
 	bool isValid() {
 		return (this->parentNode != NULL && this->nextNode != NULL) && (this->parentNode->isValid() && this->nextNode->isValid());
+	}
+	cell get() {
+		if (!this->isValid()) return ROAD_NOT;
+		return this->getParentNode()->getId() | (this->getNextNode()->getId() << 16);
 	}
 	roadNode *getParentNode() {
 		return this->parentNode;

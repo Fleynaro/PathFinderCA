@@ -33,10 +33,17 @@ public:
 	unsigned long uID;
 	void genPath::SetWorld(int world);
 	int genPath::GetWorld();
+	float getGenDist() {
+		return this->genDist;
+	}
+	void setGenDist(float dist) {
+		this->genDist = dist;
+	}
 	~genPath();
 
 	virtual void Find() = 0;
 	virtual void Destroy() = 0;
 private:
 	int world;
+	float genDist = 0.0;
 };

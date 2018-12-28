@@ -78,6 +78,7 @@ void RoadPath::Find()
 			return;
 		}
 	}
+	this->setGenDist(finalNode->getDist());
 
 	//logprintf("PATH FORMED. SIZE %i, last id = %i", this->pathNodes.size(), currentNode->getNode()->getId());
 	switch (this->Mode)
@@ -177,7 +178,7 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 				if (a == 0) a = (float)0.001;
 				//logprintf("--------->relNX=%f,relNY=%f(sign = %i,%i) vectorLong=%f, alpha=%f,delta=%f; a=%f,b=%f", relNX, relNY, relNXsign, relNYsign, vectorLong, geometry::toDegrees(alpha), geometry::toDegrees(delta), a, b);
 
-				const float step = 1.3;
+				const float step = (float)1.3;
 				float
 					rx = step,
 					rdist = 0.0;
@@ -325,6 +326,42 @@ road roadNode::getMultipleNode(int child, roadNode *excludeNode)
 		return road(0);
 	}
 	return road(childNode, parentNode);
+}
+
+roadNode * roadNode::getInvisibleNode(std::vector <Point3D*> *points, roadNode * node, roadNode * parentNode, int level)
+{
+	for (int i = 0; i < 4; i++) {
+		if (!node->isChild(i)) break;
+		roadNode *child = node->getMultipleNode(i).getParentNode();
+		if (child == NULL) {
+			continue;
+		}
+		if (child != parentNode) {
+			if (level >= 2 && child->isInvisible(points, 0)) {
+				return child;
+			}
+			else {
+				roadNode * node2 = getInvisibleNode(points, child, node, level + 1);
+				if (node2 != NULL) {
+					return node2;
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+
+bool roadNode::isInvisible(std::vector <Point3D*> *points, int world)
+{
+	for (const auto point : *points) {
+		if (point->getWorld() != world) continue;
+		float h;
+		if (api->CA_RayCastLine(this->getX(), this->getY(), this->getZ() + (float)1.0, point->getX(), point->getY(), point->getZ() + (float)1.0, h, h, h, 0) != 0) {
+			return false;
+		}
+	}
+	return true;
 }
 
 road road::getNearbyMultipleNode()

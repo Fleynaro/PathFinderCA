@@ -11,6 +11,7 @@
 struct callbackWorkerData
 {
 	int resultCode;
+	float genDist;
 	std::string name;
 	std::deque<cell> params;
 	std::vector <cell> *nodeX;

@@ -54,5 +54,7 @@ public:
 	static cell AMX_NATIVE_CALL ROAD_FixRoads(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_GetNormalPointToRoad(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_FindNearbyRoad(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_FindInvisibleNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_GetMultipleNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_Get(AMX* amx, cell* params);
 };
