@@ -47,3 +47,17 @@ private:
 	int world;
 	float genDist = 0.0;
 };
+
+
+class combinedPath : public genPath
+{
+public:
+	combinedPath();
+	~combinedPath();
+	void Find() override;
+	void Destroy() override;
+	void addPath(genPath *path);
+	void removePath(genPath *path);
+private:
+	std::vector <genPath*> paths;
+};

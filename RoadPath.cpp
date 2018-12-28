@@ -127,7 +127,7 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 		return;
 	}
 
-
+	//logprintf("RoadPath::createSmoothPath %i", i);
 	roadPathNode *firstNode, *middleNode;
 	firstNode = smoothPath.back();
 	smoothPath.pop_back();
@@ -212,6 +212,9 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 				firstNode = middleNode;
 				middleNode = lastNode;
 				smoothPath.pop_back();
+				if (smoothPath.empty()) {
+					break;
+				}
 				lastNode = smoothPath.back();
 			}
 			else {
@@ -303,6 +306,24 @@ road roadNode::getMultipleNode(int child, float &distance)
 	return road(childNode, parentNode);
 }
 
+road roadNode::getNearbyMultipleNode()
+{
+	float dist1, dist2;
+	road node1 = this->getMultipleNode(0, dist1);
+	if (node1.isValid()) {
+		road node2 = this->getMultipleNode(1, dist2);
+		if (dist1 < dist2 || node2.isValid()) {
+			return node1;
+		}
+		else {
+			return node2;
+		}
+	}
+	else {
+		return road(this, NULL);
+	}
+}
+
 road roadNode::getMultipleNode(int child, roadNode *excludeNode)
 {
 	roadNode
@@ -362,24 +383,6 @@ bool roadNode::isInvisible(std::vector <Point3D*> *points, int world)
 		}
 	}
 	return true;
-}
-
-road road::getNearbyMultipleNode()
-{
-	float dist1, dist2;
-	road node1 = this->getParentNode()->getMultipleNode(0, dist1);
-	if (node1.isValid()) {
-		road node2 = this->getParentNode()->getMultipleNode(1, dist2);
-		if (dist1 < dist2 || node2.isValid()) {
-			return node1;
-		}
-		else {
-			return node2;
-		}
-	}
-	else {
-		return *this;
-	}
 }
 
 std::queue<roadNode*> road::getNodesTo(roadNode *finalNode)

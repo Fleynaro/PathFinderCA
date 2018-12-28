@@ -18,6 +18,9 @@ public:
 	Natives();
 	~Natives();
 	
+	static cell AMX_NATIVE_CALL PF_CreateCombinedPath(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL PF_AddPathToCombinedPath(AMX* amx, cell* params);
+
 	static cell AMX_NATIVE_CALL PF_Init(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_Create(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_Remove(AMX* amx, cell* params);
@@ -56,5 +59,8 @@ public:
 	static cell AMX_NATIVE_CALL ROAD_FindNearbyRoad(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_FindInvisibleNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_GetMultipleNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_GetNearbyMultipleNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_IsMultipleNode(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL ROAD_IsEndNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_Get(AMX* amx, cell* params);
 };

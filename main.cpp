@@ -71,6 +71,9 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 
 AMX_NATIVE_INFO pathFinderNatives[] =
 {
+	{ "PF_CreateCombinedPath",		Natives::PF_CreateCombinedPath },
+	{ "PF_AddPathToCombinedPath",	Natives::PF_AddPathToCombinedPath },
+	
 	{ "PF_Init",					Natives::PF_Init },
 	{ "PF_Create",					Natives::PF_Create },
 	{ "PF_Remove",					Natives::PF_Remove },
@@ -100,6 +103,9 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "ROAD_FindNearbyRoad_",		RoadNatives::ROAD_FindNearbyRoad },
 	{ "ROAD_FindInvisibleNode",		RoadNatives::ROAD_FindInvisibleNode },
 	{ "ROAD_GetMultipleNode",		RoadNatives::ROAD_GetMultipleNode },
+	{ "ROAD_GetNearbyMultipleNode",	RoadNatives::ROAD_GetNearbyMultipleNode },
+	{ "ROAD_IsMultipleNode",		RoadNatives::ROAD_IsMultipleNode },
+	{ "ROAD_IsEndNode",				RoadNatives::ROAD_IsEndNode },
 	{ "ROAD_FixRoads",				RoadNatives::ROAD_FixRoads },
 	{ "ROAD_Get",					RoadNatives::ROAD_Get },
 	{ 0,                        0 }

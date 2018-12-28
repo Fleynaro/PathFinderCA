@@ -317,6 +317,76 @@ Natives::~Natives()
 {
 }
 
+//PF_CreateCombinedPath(callback[], params[] = "", {Float,_}:...)
+cell AMX_NATIVE_CALL Natives::PF_CreateCombinedPath(AMX * amx, cell * params)
+{
+	if (!inited) return 0;
+	else
+	{
+		char *name;
+		amx_StrParam(amx, params[1], name);
+		int id = pController->CreatePath<combinedPath>(name);
+		if (id == 0) {
+			return 0;
+		}
+
+		combinedPath *path = pController->GetPath<combinedPath>(id);
+
+		char *format;
+		amx_StrParam(amx, params[2], format);
+		if (format) {
+			std::deque<cell> deq_params;
+			cell *addr_params;
+
+			const int offset = 3;
+			for (int i = strlen(format); --i != -1;) {
+				switch (format[i])
+				{
+				case 'b':
+				case 'B':
+				case 'c':
+				case 'C':
+				case 'd':
+				case 'D':
+				case 'i':
+				case 'I':
+				case 'f':
+				case 'F':
+					amx_GetAddr(amx, params[offset + i], &addr_params);
+					deq_params.push_back(*addr_params);
+					break;
+				case 's':
+				case 'S':
+					deq_params.push_back(params[offset + i]);
+					break;
+				default:
+					logprintf("[PathFinder] Unknown format specifer: '%c'", format[i]);
+				}
+			}
+			path->params = deq_params;
+		}
+		return id;
+	}
+}
+
+//PF_AddPathToCombinedPath(path, combinedPath)
+cell AMX_NATIVE_CALL Natives::PF_AddPathToCombinedPath(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->IsPathValid(id)) {
+		return 0;
+	}
+	int id2 = params[2];
+	if (!pController->IsPathValid(id2)) {
+		return 0;
+	}
+
+	genPath *path = pController->GetPath<genPath>(id);
+	combinedPath *combPath = pController->GetPath<combinedPath>(id2);
+	combPath->addPath(path);
+	return 1;
+}
+
 
 #include "RoadPath.h"
 
@@ -385,7 +455,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_Create(AMX * amx, cell * params)
 //ROAD_SetStartNode(id, index)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_SetStartNode(AMX * amx, cell * params)
 {
-	nodeId index = params[2];
+	nodeId index = road::getNode(params[2]);
 	if (!(0 <= index && index < RoadPath::size())) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
@@ -402,7 +472,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_SetStartNode(AMX * amx, cell * params)
 //ROAD_SetFinalNode(id, index)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_SetFinalNode(AMX * amx, cell * params)
 {
-	nodeId index = params[2];
+	nodeId index = road::getNode(params[2]);
 	if (!(0 <= index && index < RoadPath::size())) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
@@ -443,7 +513,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_GetPoint(AMX * amx, cell * params)
 //ROAD_AddNode(index, Float: x, Float: y, Float: z, child1, child2, child3, child4)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_AddNode(AMX * amx, cell * params)
 {
-	nodeId index = params[1];
+	nodeId index = road::getNode(params[1]);
 	float
 		x = amx_ctof(params[2]),
 		y = amx_ctof(params[3]),
@@ -462,7 +532,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_AddNode(AMX * amx, cell * params)
 //ROAD_GetNode(index, &Float: x, &Float: y, &Float: z, childs[])
 cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNode(AMX * amx, cell * params)
 {
-	nodeId index = params[1];
+	nodeId index = road::getNode(params[1]);
 	if (!(0 <= index && index < RoadPath::size())) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
@@ -491,7 +561,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNode(AMX * amx, cell * params)
 //ROAD_RemoveNode(index)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_RemoveNode(AMX * amx, cell * params)
 {
-	nodeId index = params[1];
+	nodeId index = road::getNode(params[1]);
 	if (!(0 <= index && index < RoadPath::size())) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
@@ -509,8 +579,8 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FixRoads(AMX * amx, cell * params)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNormalPointToRoad(AMX * amx, cell * params)
 {
 	nodeId
-		startNode = params[1],
-		finalNode = params[2];
+		startNode = road::getNode(params[1]),
+		finalNode = road::getNode(params[2]);
 	if (!(0 <= startNode && startNode < RoadPath::size() && 0 <= finalNode && finalNode < RoadPath::size())) return 0;
 	road Road = road(RoadPath::getNode(startNode), RoadPath::getNode(finalNode));
 	if (!Road.isValid()) return 0;
@@ -566,7 +636,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FindNearbyRoad(AMX * amx, cell * params)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_FindInvisibleNode(AMX * amx, cell * params)
 {
 	nodeId
-		startNode = params[1];
+		startNode = road::getNode(params[1]);
 	if (!(0 <= startNode && startNode < RoadPath::size())) return ROAD_NOT;
 	std::vector <Point3D*> points;
 
@@ -595,15 +665,42 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FindInvisibleNode(AMX * amx, cell * param
 cell AMX_NATIVE_CALL RoadNatives::ROAD_GetMultipleNode(AMX * amx, cell * params)
 {
 	nodeId
-		node = params[1];
+		node = road::getNode(params[1]);
 	if (!(0 <= node && node < RoadPath::size())) return ROAD_NOT;
 	return RoadPath::getNode(node)->getMultipleNode(params[2]).get();
+}
+
+//ROAD_GetNearbyMultipleNode(index)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNearbyMultipleNode(AMX * amx, cell * params)
+{
+	nodeId
+		node = road::getNode(params[1]);
+	if (!(0 <= node && node < RoadPath::size())) return ROAD_NOT;
+	return RoadPath::getNode(node)->getNearbyMultipleNode().getParentNode()->getId();
+}
+
+//ROAD_IsMultipleNode(index)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_IsMultipleNode(AMX * amx, cell * params)
+{
+	nodeId
+		node = road::getNode(params[1]);
+	if (!(0 <= node && node < RoadPath::size())) return 0;
+	return RoadPath::getNode(node)->isMultiple();
+}
+
+//ROAD_IsEndNode(index)
+cell AMX_NATIVE_CALL RoadNatives::ROAD_IsEndNode(AMX * amx, cell * params)
+{
+	nodeId
+		node = road::getNode(params[1]);
+	if (!(0 <= node && node < RoadPath::size())) return 0;
+	return RoadPath::getNode(node)->isEnd();
 }
 
 //ROAD_Get(node, child)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_Get(AMX * amx, cell * params)
 {
-	nodeId index = params[1];
+	nodeId index = road::getNode(params[1]);
 	int child = params[2];
 	cell Road = 0xFFFFFFFF;
 	if (!(0 <= index && index < RoadPath::size())) return Road;

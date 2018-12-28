@@ -127,6 +127,7 @@ public:
 
 	road getMultipleNode(int child, float &distance);
 	road getMultipleNode(int child, roadNode *exclude = NULL);
+	road getNearbyMultipleNode();
 	static roadNode *getInvisibleNode(std::vector <Point3D*> *points, roadNode *node, roadNode *parentNode = NULL, int level = 0);
 	bool isInvisible(std::vector <Point3D*> *points, int world = 0);
 private:
@@ -192,6 +193,9 @@ public:
 		this->parentNode = NULL;
 		this->nextNode = NULL;
 	}
+	static nodeId getNode(cell Road) {
+		return Road & 0xFFFF;
+	}
 	bool isValid() {
 		return (this->parentNode != NULL && this->nextNode != NULL) && (this->parentNode->isValid() && this->nextNode->isValid());
 	}
@@ -206,7 +210,6 @@ public:
 		return this->nextNode;
 	}
 	std::queue<roadNode*> getNodesTo(roadNode *finalNode);
-	road getNearbyMultipleNode();
 	bool getNormalPoint(float X, float Y, float &x, float &y, float &z);
 	static road findNearbyRoad(float x, float y, float z, float radius, float &fx, float &fy, float &fz, float minRadius = 0.0);
 	Vector3D getVector() {
