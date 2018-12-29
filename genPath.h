@@ -3,6 +3,7 @@
 
 #include "CA_API.h"
 #include "main.h"
+#include "geometry.h"
 #include <algorithm>
 
 extern CA_API *api;
@@ -57,7 +58,6 @@ public:
 	void Find() override;
 	void Destroy() override;
 	void addPath(genPath *path);
-	void removePath(genPath *path);
 private:
-	std::vector <genPath*> paths;
+	std::deque <genPath*> paths;
 };

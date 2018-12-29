@@ -2,7 +2,6 @@
 
 
 #include "genPath.h"
-#include "geometry.h"
 #include <limits>
 
 #undef max
@@ -44,26 +43,43 @@ public:
 
 	void createPath(roadPathNode *node);
 	void createSmoothPath(roadPathNode *node);
+
 	void Find() override;
 	void Destroy() override;
+
+
+	struct smoothPath {
+	public:
+		smoothPath() {}
+		void setStartRoad(road *Road) {
+			this->startRoad = *Road;
+		}
+		road *getStartRoad() {
+			return &this->startRoad;
+		}
+	private:
+		road startRoad;
+	};
+	RoadPath::smoothPath *RoadPath::getSmoothPath();
 private:
 	static roadNode nodes[MAX_ROAD_NODES];
 	static nodeId lastNodeId;
 	std::map<nodeId, roadPathNode*> pathNodes;
 	roadNode *startNode;
 	roadNode *finalNode;
+	RoadPath::smoothPath *SmoothPath = NULL;
 };
 
 struct roadNode
 {
 public:
 	roadNode() {}
-	roadNode(nodeId id, float x, float y, float z)
+	roadNode(nodeId id, Point3D *pos)
 	{
 		this->id = id;
-		this->x = x;
-		this->y = y;
-		this->z = z;
+		this->x = pos->getX();
+		this->y = pos->getY();
+		this->z = pos->getZ();
 		for (int i = 0; i < 4; i++) {
 			this->setChild(i, ROAD_NOT);
 		}
@@ -77,10 +93,13 @@ public:
 	float getZ() {
 		return this->z;
 	}
-	void setPos(float x, float y, float z) {
-		this->x = x;
-		this->y = y;
-		this->z = z;
+	Point3D getPos() {
+		return Point3D(this->getX(), this->getY(), this->getZ());
+	}
+	void setPos(Point3D *pos) {
+		this->x = pos->getX();
+		this->y = pos->getY();
+		this->z = pos->getZ();
 	}
 	bool isMultiple() {
 		return (this->isChild(2) || this->isChild(3)) || this->isEnd();
@@ -94,11 +113,11 @@ public:
 	bool isValid() {
 		return this->getId() != ROAD_NOT;
 	}
-	float getDist2To(float x, float y, float z) {
-		return (this->getX() - x) * (this->getX() - x) + (this->getY() - y) * (this->getY() - y) + (this->getZ() - z) * (this->getZ() - z);
+	float getDist2To(Point3D *pos) {
+		return (this->getX() - pos->getX()) * (this->getX() - pos->getX()) + (this->getY() - pos->getY()) * (this->getY() - pos->getY()) + (this->getZ() - pos->getZ()) * (this->getZ() - pos->getZ());
 	}
 	float getDist2(roadNode *node) {
-		return this->getDist2To(node->getX(), node->getY(), node->getZ());
+		return this->getDist2To(&Point3D(node->getX(), node->getY(), node->getZ()));
 	}
 	float getDist(roadNode *node) {
 		return sqrt(this->getDist2(node));
@@ -189,7 +208,7 @@ public:
 		this->parentNode = parentNode;
 		this->nextNode = nextNode;
 	}
-	road(int x) {
+	road() {
 		this->parentNode = NULL;
 		this->nextNode = NULL;
 	}
@@ -210,8 +229,8 @@ public:
 		return this->nextNode;
 	}
 	std::queue<roadNode*> getNodesTo(roadNode *finalNode);
-	bool getNormalPoint(float X, float Y, float &x, float &y, float &z);
-	static road findNearbyRoad(float x, float y, float z, float radius, float &fx, float &fy, float &fz, float minRadius = 0.0);
+	bool getNormalPoint(float X, float Y, Point3D *normal);
+	static road findNearbyRoad(Point3D *pos, float radius, Point3D *normal, float minRadius = 0.0);
 	Vector3D getVector() {
 		return Vector3D(
 			this->getNextNode()->getX() - this->getParentNode()->getX(),

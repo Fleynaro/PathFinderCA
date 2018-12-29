@@ -97,6 +97,7 @@
     <ClCompile Include="SDK\amxplugin2.cpp" />
     <ClCompile Include="SDK\amx\getch.c" />
     <ClCompile Include="thread.cpp" />
+    <ClCompile Include="vehiclePath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CA_API.h" />
@@ -114,6 +115,7 @@
     <ClInclude Include="SDK\plugin.h" />
     <ClInclude Include="SDK\plugincommon.h" />
     <ClInclude Include="thread.h" />
+    <ClInclude Include="vehiclePath.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NEW\ColAndreas-master\.vs\ColAndreas.vcxproj">

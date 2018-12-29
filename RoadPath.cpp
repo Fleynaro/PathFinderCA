@@ -108,6 +108,13 @@ void RoadPath::createPath(roadPathNode *node)
 	this->status = NOT_FOUND;
 }
 
+RoadPath::smoothPath *RoadPath::getSmoothPath()
+{
+	if (this->SmoothPath == NULL) {
+		this->SmoothPath = new smoothPath();
+	}
+	return this->SmoothPath;
+}
 void RoadPath::createSmoothPath(roadPathNode *node)
 {
 	std::deque <roadPathNode*> smoothPath;
@@ -125,6 +132,12 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 	if (i == this->PATH_SIZE || i <= 2) {
 		this->status = NOT_FOUND;
 		return;
+	}
+	if (getSmoothPath()->getStartRoad()->isValid()) {
+		roadNode* startSecondNode = (smoothPath.back() - 1)->getNode();
+		if (startSecondNode == getSmoothPath()->getStartRoad()->getNextNode()) {
+			smoothPath.pop_back();
+		}
 	}
 
 	//logprintf("RoadPath::createSmoothPath %i", i);
@@ -199,7 +212,7 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 							wz = firstNode->getNode()->getZ() + (lastNode->getNode()->getZ() - firstNode->getNode()->getZ()) * rx / relNX;
 
 						if (api->CA_RayCastLine(wx, wy, wz + (float)10.0, wx, wy, wz - (float)10.0, wx, wy, wz, 0) != 0) {
-							this->pathData->push_back(new pathPoint(wx, wy, wz));
+							this->pathData->push_front(new pathPoint(wx, wy, wz));
 							//logprintf("ADD -------------> wx, wy, wz = %f,%f,%f (rx = %f/%f, ry = %f/%f, a = %f, b = %f) rdist = %f", wx, wy, wz, rx, relNX, ry, relNY, a, b, rdist);
 						}
 					}
@@ -236,13 +249,13 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 							wz = firstNode->getNode()->getZ() + v.getZ() / parts * j;
 						//logprintf("---------->wx=%f,wy=%f,wz=%f", wx, wy, wz);
 						if (api->CA_RayCastLine(wx, wy, wz + height, wx, wy, wz - height, wx, wy, wz, 0) != 0) {
-							this->pathData->push_back(new pathPoint(wx, wy, wz));
+							this->pathData->push_front(new pathPoint(wx, wy, wz));
 							//logprintf("ADD ------------->x=%f,y=%f,z=%f", wx, wy, wz);
 						}
 						j += 1.0;
 					}
 				}
-				this->pathData->push_back(new pathPoint(
+				this->pathData->push_front(new pathPoint(
 					middleNode->getNode()->getX(),
 					middleNode->getNode()->getY(),
 					middleNode->getNode()->getZ()
@@ -299,7 +312,7 @@ road roadNode::getMultipleNode(int child, float &distance)
 		}
 	}
 	if (childNode == NULL) {
-		return road(0);
+		return road();
 	}
 
 	distance += childNode->getDist(parentNode);
@@ -331,7 +344,7 @@ road roadNode::getMultipleNode(int child, roadNode *excludeNode)
 		*childNode = this->getChild(child);
 	while (childNode != NULL && !childNode->isMultiple()) {
 		if (childNode == excludeNode) {
-			return road(0);
+			return road();
 		}
 		if (childNode->getChild(0) != parentNode) {
 			parentNode = childNode;
@@ -344,7 +357,7 @@ road roadNode::getMultipleNode(int child, roadNode *excludeNode)
 	}
 	
 	if (childNode == NULL) {
-		return road(0);
+		return road();
 	}
 	return road(childNode, parentNode);
 }
@@ -405,7 +418,7 @@ std::queue<roadNode*> road::getNodesTo(roadNode *finalNode)
 	return nodes;
 }
 
-bool road::getNormalPoint(float X, float Y, float &fx, float &fy, float &fz)
+bool road::getNormalPoint(float X, float Y, Point3D *normal)
 {
 	roadNode
 		*node1 = this->getParentNode(),
@@ -419,40 +432,36 @@ bool road::getNormalPoint(float X, float Y, float &fx, float &fy, float &fz)
 	double x = (b2 - b1) / (k2 - k1);
 	double y = -k1 * x + b1;
 	double z = (node2->getZ() + node1->getZ()) / 2.;
-	fx = (float)x;
-	fy = (float)y;
-	fz = (float)z;
+	normal->setPos(x, y, z);
 
 	//logprintf("ROAD(%i, %i): %f < %f < %f && %f < %f < %f", node1->getId(), node2->getId(), node1->getX() - 0.0001, x, node2->getX() + 0.0001, node1->getY() - 0.0001, y, node2->getY() + 0.0001);
 	return ((node1->getX() - 0.0001 <= x && x <= node2->getX() + 0.0001) || (node1->getX() - 0.0001 >= x && x >= node2->getX() + 0.0001)) && ((node1->getY() - 0.0001 <= y && y <= node2->getY() + 0.0001) || (node1->getY() - 0.0001 >= y && y >= node2->getY() + 0.0001));
 }
 
-road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, float &fy, float &fz, float minRadius)
+road road::findNearbyRoad(Point3D *pos, float radius, Point3D *normal, float minRadius)
 {
 	float minDist = std::numeric_limits<float>::max();
-	road Road(0);
+	road Road;
 	minRadius *= minRadius;
 	radius *= radius;
 
 	for (int i = 0, size = RoadPath::size(); i < size; i++) {
 		roadNode *node = RoadPath::getNode(i);
-		float dist = node->getDist2To(x, y, z);
+		float dist = node->getDist2To(pos);
 		if (dist <= 50.0*50.0) {
 			for (int j = 0; j < 4; j++) {
 				roadNode *child = node->getChild(j);
 				if (child == NULL) break;
 				if (child->getId() > i)
 				{
-					float tx, ty, tz;
+					Point3D normalPoint;
 					road tempRoad = road(node, child);
-					if (tempRoad.getNormalPoint(x, y, tx, ty, tz)) {
-						float dist2 = (x - tx)*(x - tx) + (y - ty)*(y - ty) + (z - tz)*(z - tz);
+					if (tempRoad.getNormalPoint(pos->getX(), pos->getY(), &normalPoint)) {
+						float dist2 = Vector3D(pos, &normalPoint).getLong2();
 						if (dist2 < minDist) {
 							minDist = dist2;
 							Road = tempRoad;
-							fx = tx;
-							fy = ty;
-							fz = tz;
+							*normal = normalPoint;
 						}
 					}
 				}
@@ -461,9 +470,7 @@ road road::findNearbyRoad(float x, float y, float z, float radius, float &fx, fl
 		if (dist < minDist) {
 			minDist = dist;
 			Road = road(node, node);
-			fx = node->getX();
-			fy = node->getY();
-			fz = node->getZ();
+			*normal = node->getPos();
 		}
 
 		if (minDist >= minRadius && minDist < radius) {
@@ -510,7 +517,7 @@ void RoadPath::fixRoads()
 
 		float x, y, z;
 		if (api->CA_RayCastLine(node->getX(), node->getY(), node->getZ() + (float)1.5, node->getX(), node->getY(), node->getZ() - (float)20.0, x, y, z, 0) != 0) {
-			node->setPos(x, y, z);
+			node->setPos(&Point3D(x, y, z));
 		}
 	}
 }
@@ -545,5 +552,8 @@ RoadPath::~RoadPath()
 {
 	for (auto &pNode : this->pathNodes) {
 		delete pNode.second;
+	}
+	if (this->SmoothPath != NULL) {
+		delete this->SmoothPath;
 	}
 }

@@ -382,6 +382,7 @@ cell AMX_NATIVE_CALL Natives::PF_AddPathToCombinedPath(AMX * amx, cell * params)
 	}
 
 	genPath *path = pController->GetPath<genPath>(id);
+	pController->RemovePath(id);
 	combinedPath *combPath = pController->GetPath<combinedPath>(id2);
 	combPath->addPath(path);
 	return 1;
@@ -519,7 +520,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_AddNode(AMX * amx, cell * params)
 		y = amx_ctof(params[3]),
 		z = amx_ctof(params[4]);
 
-	roadNode node(index, x, y, z);
+	roadNode node(index, &Point3D(x, y, z));
 	for (int i = 0; i < 4; i++) {
 		if (params[5 + i] == -1) break;
 		node.setChild(i, params[5 + i]);
@@ -588,17 +589,23 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNormalPointToRoad(AMX * amx, cell * pa
 
 	float
 		X = amx_ctof(params[3]),
-		Y = amx_ctof(params[4]),
-		x, y, z;
-	bool result = Road.getNormalPoint(X, Y, x, y, z);
+		Y = amx_ctof(params[4]);
+	Point3D normal;
+	bool result = Road.getNormalPoint(X, Y, &normal);
 
 	cell *pAddress = NULL;
+	float coord;
 	amx_GetAddr(amx, params[5], &pAddress);
-	*pAddress = amx_ftoc(x);
+	coord = normal.getX();
+	*pAddress = amx_ftoc(coord);
+
 	amx_GetAddr(amx, params[6], &pAddress);
-	*pAddress = amx_ftoc(y);
+	coord = normal.getY();
+	*pAddress = amx_ftoc(coord);
+
 	amx_GetAddr(amx, params[7], &pAddress);
-	*pAddress = amx_ftoc(z);
+	coord = normal.getZ();
+	*pAddress = amx_ftoc(coord);
 	return result;
 }
 
@@ -610,18 +617,24 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FindNearbyRoad(AMX * amx, cell * params)
 		Y = amx_ctof(params[2]),
 		Z = amx_ctof(params[3]),
 		radius = amx_ctof(params[4]),
-		minRadius = amx_ctof(params[10]),
-		x = 0.0, y = 0.0, z = 0.0;
-
-	road Road = road::findNearbyRoad(X, Y, Z, radius, x, y, z, minRadius);
+		minRadius = amx_ctof(params[10]);
+	Point3D normal;
+	road Road = road::findNearbyRoad(&Point3D(X, Y, Z), radius, &normal, minRadius);
 	if ( Road.isValid() ) {
 		cell *pAddress = NULL;
+		float coord;
 		amx_GetAddr(amx, params[5], &pAddress);
-		*pAddress = amx_ftoc(x);
+		coord = normal.getX();
+		*pAddress = amx_ftoc(coord);
+
 		amx_GetAddr(amx, params[6], &pAddress);
-		*pAddress = amx_ftoc(y);
+		coord = normal.getY();
+		*pAddress = amx_ftoc(coord);
+
 		amx_GetAddr(amx, params[7], &pAddress);
-		*pAddress = amx_ftoc(z);
+		coord = normal.getZ();
+		*pAddress = amx_ftoc(coord);
+
 
 		amx_GetAddr(amx, params[8], &pAddress);
 		*pAddress = Road.getParentNode()->getId();

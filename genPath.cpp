@@ -40,16 +40,23 @@ combinedPath::combinedPath()
 
 void combinedPath::Find()
 {
-	for (const auto path : this->paths) {
+	while (!this->paths.empty()) {
+		genPath *path = this->paths.front();
+		//logprintf("combinedPath::Find(): path=%i", path->uID);
+
 		path->Find();
 		if (path->status != genPath::state::FOUND) {
 			this->status = path->status;
 			return;
 		}
 		while (!path->pathData->empty()) {
-			this->pathData->push_back(path->pathData->back());
+			this->pathData->push_front(path->pathData->back());
 			path->pathData->pop_back();
 		}
+		this->setGenDist(this->getGenDist() + path->getGenDist());
+
+		path->Destroy();
+		this->paths.pop_front();
 	}
 	this->status = state::FOUND;
 }
@@ -61,17 +68,13 @@ void combinedPath::Destroy()
 
 combinedPath::~combinedPath()
 {
-	for (auto path : this->paths) {
-		path->Destroy();
+	while (!this->paths.empty()) {
+		this->paths.front()->Destroy();
 	}
 }
 
 void combinedPath::addPath(genPath * path)
 {
+	//logprintf("combinedPath::addPath: path=%i", path->uID);
 	this->paths.push_back(path);
-}
-
-void combinedPath::removePath(genPath * path)
-{
-	this->paths.erase(std::remove(this->paths.begin(), this->paths.end(), path), this->paths.end());
 }
