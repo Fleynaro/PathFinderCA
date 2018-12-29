@@ -134,9 +134,15 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 		return;
 	}
 	if (getSmoothPath()->getStartRoad()->isValid()) {
-		roadNode* startSecondNode = (smoothPath.back() - 1)->getNode();
+		roadNode* startSecondNode = (*(smoothPath.end() - 2))->getNode();
 		if (startSecondNode == getSmoothPath()->getStartRoad()->getNextNode()) {
 			smoothPath.pop_back();
+		}
+	}
+	if (getSmoothPath()->getFinalRoad()->isValid()) {
+		roadNode* finalSecondNode = (*(smoothPath.begin() + 1))->getNode();
+		if (finalSecondNode == getSmoothPath()->getFinalRoad()->getNextNode()) {
+			smoothPath.pop_front();
 		}
 	}
 
@@ -270,6 +276,25 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 	}
 }
 
+void RoadPath::smoothPath::setStartRoad(road *Road)
+{
+	this->startRoad = *Road;
+}
+road *RoadPath::smoothPath::getStartRoad() {
+	return &this->startRoad;
+}
+
+void RoadPath::smoothPath::setFinalRoad(road * Road)
+{
+	this->finalRoad = *Road;
+}
+
+road * RoadPath::smoothPath::getFinalRoad()
+{
+	return &this->finalRoad;
+}
+
+
 void RoadPath::openPathNodes(roadPathNode *parentNode, std::vector <roadPathNode*> *openNodes)
 {
 	float parentDist = parentNode->getDist();
@@ -294,6 +319,15 @@ void RoadPath::openPathNodes(roadPathNode *parentNode, std::vector <roadPathNode
 }
 
 
+
+roadNode * roadNode::getChild(int index) {
+	if (!this->isChild(index)) return NULL;
+	return RoadPath::getNode(this->child[index]);
+}
+
+bool roadNode::isValid(nodeId node) {
+	return 0 <= node && node < RoadPath::size();
+}
 
 road roadNode::getMultipleNode(int child, float &distance)
 {
@@ -432,7 +466,7 @@ bool road::getNormalPoint(float X, float Y, Point3D *normal)
 	double x = (b2 - b1) / (k2 - k1);
 	double y = -k1 * x + b1;
 	double z = (node2->getZ() + node1->getZ()) / 2.;
-	normal->setPos(x, y, z);
+	normal->setPos((float)x, (float)y, (float)z);
 
 	//logprintf("ROAD(%i, %i): %f < %f < %f && %f < %f < %f", node1->getId(), node2->getId(), node1->getX() - 0.0001, x, node2->getX() + 0.0001, node1->getY() - 0.0001, y, node2->getY() + 0.0001);
 	return ((node1->getX() - 0.0001 <= x && x <= node2->getX() + 0.0001) || (node1->getX() - 0.0001 >= x && x >= node2->getX() + 0.0001)) && ((node1->getY() - 0.0001 <= y && y <= node2->getY() + 0.0001) || (node1->getY() - 0.0001 >= y && y >= node2->getY() + 0.0001));

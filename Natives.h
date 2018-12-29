@@ -15,8 +15,8 @@ extern CA_API *api;
 class Natives
 {
 public:
-	Natives();
-	~Natives();
+	Natives() {};
+	~Natives() {};
 	
 	static cell AMX_NATIVE_CALL PF_CreateCombinedPath(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_AddPathToCombinedPath(AMX* amx, cell* params);
@@ -41,8 +41,8 @@ public:
 class RoadNatives
 {
 public:
-	RoadNatives();
-	~RoadNatives();
+	RoadNatives() {};
+	~RoadNatives() {};
 
 	static cell AMX_NATIVE_CALL ROAD_Create(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_SetStartNode(AMX* amx, cell* params);
@@ -63,4 +63,17 @@ public:
 	static cell AMX_NATIVE_CALL ROAD_IsMultipleNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_IsEndNode(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL ROAD_Get(AMX* amx, cell* params);
+
+
+	class Vehicle
+	{
+	public:
+		Vehicle() {};
+		~Vehicle() {};
+		static cell AMX_NATIVE_CALL ROAD_Veh_Create(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Veh_SetStartNode(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Veh_SetStartPos(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Veh_SetFinalNode(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Veh_SetFinalPos(AMX* amx, cell* params);
+	};
 };

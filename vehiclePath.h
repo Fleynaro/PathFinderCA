@@ -32,6 +32,10 @@ public:
 		this->finalNode = node;
 	}
 
+	void setPathFinding(int i, bool value) {
+		this->pathEnabled[i] = value;
+	}
+
 	void Find() override;
 private:
 	void setStart_(Point3D *pos, float roadRadius = 8.0);
@@ -45,6 +49,8 @@ private:
 	Path *firstPath = NULL;
 	Path *lastPath = NULL;
 	RoadPath *roadPath = NULL;
+
+	bool pathEnabled[2] = {true, true};
 
 	Point3D start;
 	roadNode *startNode = NULL;

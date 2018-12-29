@@ -41,8 +41,8 @@
 	#define alloca __builtin_alloca
 #endif
 #define NULL_POINT -1000.0f
-#define PATHFINDER_VERSION "1.0 RELOADED"
-#define MAX_PATHS_CREATED 30
+#define PATHFINDER_VERSION "2.0 Road finding future supported."
+#define MAX_PATHS_CREATED 40
 
 
 

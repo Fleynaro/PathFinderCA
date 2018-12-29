@@ -11,64 +11,8 @@ typedef unsigned short int nodeId;
 #define MAX_ROAD_NODES 30000
 #define ROAD_NOT 0xFFFF
 
-struct roadNode;
 struct roadPathNode;
 struct road;
-
-class RoadPath : public genPath
-{
-public:
-	enum mode { DEFAULT, SMOOTH };
-	RoadPath::mode Mode;
-	static void fixRoads();
-	static roadNode *getNode(nodeId index);
-	static void addNode(nodeId index, roadNode node);
-	static void removeNode(nodeId index);
-	static int size() {
-		return RoadPath::lastNodeId;
-	};
-	RoadPath();
-	~RoadPath();
-
-	void setStart(nodeId index) {
-		startNode = getNode(index);
-	}
-	void setFinal(nodeId index) {
-		finalNode = getNode(index);
-	}
-	void addPathNode(nodeId index, roadPathNode *pathNode);
-	roadPathNode *getPathNode(roadNode *node, bool open = false);
-	bool isPathNode(nodeId index);
-	void openPathNodes(roadPathNode *parentNode, std::vector <roadPathNode*> *openNodes);
-
-	void createPath(roadPathNode *node);
-	void createSmoothPath(roadPathNode *node);
-
-	void Find() override;
-	void Destroy() override;
-
-
-	struct smoothPath {
-	public:
-		smoothPath() {}
-		void setStartRoad(road *Road) {
-			this->startRoad = *Road;
-		}
-		road *getStartRoad() {
-			return &this->startRoad;
-		}
-	private:
-		road startRoad;
-	};
-	RoadPath::smoothPath *RoadPath::getSmoothPath();
-private:
-	static roadNode nodes[MAX_ROAD_NODES];
-	static nodeId lastNodeId;
-	std::map<nodeId, roadPathNode*> pathNodes;
-	roadNode *startNode;
-	roadNode *finalNode;
-	RoadPath::smoothPath *SmoothPath = NULL;
-};
 
 struct roadNode
 {
@@ -134,15 +78,13 @@ public:
 	nodeId getId() {
 		return this->id;
 	}
-	roadNode *getChild(int index) {
-		if (!this->isChild(index)) return NULL;
-		return RoadPath::getNode(this->child[index]);
-	}
+	roadNode *getChild(int index);
 	int getChildCount() {
 		int count;
 		while (count <= 3 && this->isChild(count)) count++;
 		return count;
 	}
+	static bool isValid(nodeId node);
 
 	road getMultipleNode(int child, float &distance);
 	road getMultipleNode(int child, roadNode *exclude = NULL);
@@ -241,4 +183,58 @@ public:
 private:
 	roadNode *parentNode;
 	roadNode *nextNode;
+};
+
+
+class RoadPath : public genPath
+{
+public:
+	enum mode { DEFAULT, SMOOTH };
+	RoadPath::mode Mode;
+	static void fixRoads();
+	static roadNode *getNode(nodeId index);
+	static void addNode(nodeId index, roadNode node);
+	static void removeNode(nodeId index);
+	static int size() {
+		return RoadPath::lastNodeId;
+	};
+	RoadPath();
+	~RoadPath();
+
+	void setStart(nodeId index) {
+		startNode = getNode(index);
+	}
+	void setFinal(nodeId index) {
+		finalNode = getNode(index);
+	}
+	void addPathNode(nodeId index, roadPathNode *pathNode);
+	roadPathNode *getPathNode(roadNode *node, bool open = false);
+	bool isPathNode(nodeId index);
+	void openPathNodes(roadPathNode *parentNode, std::vector <roadPathNode*> *openNodes);
+
+	void createPath(roadPathNode *node);
+	void createSmoothPath(roadPathNode *node);
+
+	void Find() override;
+	void Destroy() override;
+
+	struct smoothPath {
+	public:
+		smoothPath() {}
+		void setStartRoad(road *Road);
+		road *getStartRoad();
+		void setFinalRoad(road *Road);
+		road *getFinalRoad();
+	private:
+		road startRoad;
+		road finalRoad;
+	};
+	RoadPath::smoothPath *RoadPath::getSmoothPath();
+private:
+	static roadNode nodes[MAX_ROAD_NODES];
+	static nodeId lastNodeId;
+	std::map<nodeId, roadPathNode*> pathNodes;
+	roadNode *startNode;
+	roadNode *finalNode;
+	RoadPath::smoothPath *SmoothPath = NULL;
 };

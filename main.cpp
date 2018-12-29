@@ -108,9 +108,15 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "ROAD_IsEndNode",				RoadNatives::ROAD_IsEndNode },
 	{ "ROAD_FixRoads",				RoadNatives::ROAD_FixRoads },
 	{ "ROAD_Get",					RoadNatives::ROAD_Get },
+
+	{ "ROAD_Veh_Create",			RoadNatives::Vehicle::ROAD_Veh_Create },
+	{ "ROAD_Veh_SetStartNode",		RoadNatives::Vehicle::ROAD_Veh_SetStartNode },
+	{ "ROAD_Veh_SetStartPos",		RoadNatives::Vehicle::ROAD_Veh_SetStartPos },
+	{ "ROAD_Veh_SetFinalNode",		RoadNatives::Vehicle::ROAD_Veh_SetFinalNode },
+	{ "ROAD_Veh_SetFinalPos",		RoadNatives::Vehicle::ROAD_Veh_SetFinalPos },
 	{ 0,                        0 }
 };
-
+ 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad( AMX *amx ) 
 {
 	amxList.push_back(amx);

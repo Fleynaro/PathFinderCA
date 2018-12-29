@@ -1,8 +1,6 @@
 #include "Natives.h"
 
-Natives::Natives()
-{
-}
+
 
 // native PathFinder_Init(threads);
 cell AMX_NATIVE_CALL Natives::PF_Init(AMX* amx, cell* params)
@@ -81,7 +79,7 @@ cell AMX_NATIVE_CALL Natives::PF_Create(AMX* amx, cell* params)
 		return id;
 	}
 }
-//PF_Remove(id)
+//PF_Remove(path)
 cell AMX_NATIVE_CALL Natives::PF_Remove(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -95,7 +93,7 @@ cell AMX_NATIVE_CALL Natives::PF_Remove(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetPlaneSize(id, width, height)
+//PF_SetPlaneSize(path, width, height)
 cell AMX_NATIVE_CALL Natives::PF_SetPlaneSize(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -110,7 +108,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetPlaneSize(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetWorld(id, world)
+//PF_SetWorld(path, world)
 cell AMX_NATIVE_CALL Natives::PF_SetWorld(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -125,7 +123,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetWorld(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetWallSize(id, Float:up, Float:down)
+//PF_SetWallSize(path, Float:up, Float:down)
 cell AMX_NATIVE_CALL Natives::PF_SetWallSize(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -141,7 +139,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetWallSize(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetBeginRelativeCoord(id, Float:x, Float:y, width = 10, height = 10)
+//PF_SetBeginRelativeCoord(path, Float:x, Float:y, width = 10, height = 10)
 cell AMX_NATIVE_CALL Natives::PF_SetBeginRelativeCoord(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -156,7 +154,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetBeginRelativeCoord(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetStart(id, Float:startX, Float:startY, Float:startZ)
+//PF_SetStart(path, Float:startX, Float:startY, Float:startZ)
 cell AMX_NATIVE_CALL Natives::PF_SetStart(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -174,7 +172,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetStart(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetFinalAsPoint(id, Float:endX, Float:endY, Float:endZ)
+//PF_SetFinalAsPoint(path, Float:endX, Float:endY, Float:endZ)
 cell AMX_NATIVE_CALL Natives::PF_SetFinalAsPoint(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -192,7 +190,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetFinalAsPoint(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetFinalAsCircle(id, Float:endX, Float:endY, Float:radius)
+//PF_SetFinalAsCircle(path, Float:endX, Float:endY, Float:radius)
 cell AMX_NATIVE_CALL Natives::PF_SetFinalAsCircle(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -210,7 +208,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetFinalAsCircle(AMX* amx, cell* params)
 		return 1;
 	}
 }
-//PF_SetFinalAsLine(id, Float:lineX, Float:lineY, Float:lineAngle)
+//PF_SetFinalAsLine(path, Float:lineX, Float:lineY, Float:lineAngle)
 cell AMX_NATIVE_CALL Natives::PF_SetFinalAsLine(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -227,7 +225,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetFinalAsLine(AMX* amx, cell* params)
 	}
 }
 
-//PF_Find(id)
+//PF_Find(path)
 cell AMX_NATIVE_CALL Natives::PF_Find(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -253,7 +251,7 @@ cell AMX_NATIVE_CALL Natives::PF_Find(AMX* amx, cell* params)
 	}
 }
 
-//PF_FindNow(id, &code, &Float:nodesX[], &Float:nodesY[], &Float:nodesZ[], &nodesSize)
+//PF_FindNow(path, &code, &Float:nodesX[], &Float:nodesY[], &Float:nodesZ[], &nodesSize)
 cell AMX_NATIVE_CALL Natives::PF_FindNow(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -277,7 +275,7 @@ cell AMX_NATIVE_CALL Natives::PF_FindNow(AMX* amx, cell* params)
 	}
 }
 
-//PF_GetPoint(id, &Float: x, &Float: y, &Float: z)
+//PF_GetPoint(path, &Float: x, &Float: y, &Float: z)
 cell AMX_NATIVE_CALL Natives::PF_GetPoint(AMX* amx, cell* params)
 {
 	if (!inited) return 0;
@@ -311,10 +309,6 @@ cell AMX_NATIVE_CALL Natives::PF_SetTickRate(AMX* amx, cell* params)
 	if (params[1] <= 0) maxTicked = 1;
 	else maxTicked = params[1];
 	return 1;
-}
-
-Natives::~Natives()
-{
 }
 
 //PF_CreateCombinedPath(callback[], params[] = "", {Float,_}:...)
@@ -391,14 +385,6 @@ cell AMX_NATIVE_CALL Natives::PF_AddPathToCombinedPath(AMX * amx, cell * params)
 
 #include "RoadPath.h"
 
-RoadNatives::RoadNatives()
-{
-}
-
-RoadNatives::~RoadNatives()
-{
-}
-
 //ROAD_Create(callback[], mode = 0, path_size = 1500, params[] = "", {Float,_}:...)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_Create(AMX * amx, cell * params)
 {
@@ -457,7 +443,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_Create(AMX * amx, cell * params)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_SetStartNode(AMX * amx, cell * params)
 {
 	nodeId index = road::getNode(params[2]);
-	if (!(0 <= index && index < RoadPath::size())) return 0;
+	if (!roadNode::isValid(index)) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
 
@@ -470,11 +456,11 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_SetStartNode(AMX * amx, cell * params)
 	return 1;
 }
 
-//ROAD_SetFinalNode(id, index)
+//ROAD_SetFinalNode(path, index)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_SetFinalNode(AMX * amx, cell * params)
 {
 	nodeId index = road::getNode(params[2]);
-	if (!(0 <= index && index < RoadPath::size())) return 0;
+	if (!roadNode::isValid(index)) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
 
@@ -487,25 +473,25 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_SetFinalNode(AMX * amx, cell * params)
 	return 1;
 }
 
-//ROAD_Remove(id)
+//ROAD_Remove(path)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_Remove(AMX * amx, cell * params)
 {
 	return Natives::PF_Remove(amx, params);
 }
 
-//ROAD_Find(id)
+//ROAD_Find(path)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_Find(AMX * amx, cell * params)
 {
 	return Natives::PF_Find(amx, params);
 }
 
-//ROAD_FindNow(id, &code, &Float:nodesX[], &Float:nodesY[], &Float:nodesZ[], &nodesSize)
+//ROAD_FindNow(path, &code, &Float:nodesX[], &Float:nodesY[], &Float:nodesZ[], &nodesSize)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_FindNow(AMX * amx, cell * params)
 {
 	return Natives::PF_FindNow(amx, params);
 }
 
-//ROAD_GetPoint(id, &Float: x, &Float: y, &Float: z)
+//ROAD_GetPoint(path, &Float: x, &Float: y, &Float: z)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_GetPoint(AMX * amx, cell * params)
 {
 	return Natives::PF_GetPoint(amx, params);;
@@ -534,7 +520,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_AddNode(AMX * amx, cell * params)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNode(AMX * amx, cell * params)
 {
 	nodeId index = road::getNode(params[1]);
-	if (!(0 <= index && index < RoadPath::size())) return 0;
+	if (!roadNode::isValid(index)) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
 	float
@@ -563,7 +549,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNode(AMX * amx, cell * params)
 cell AMX_NATIVE_CALL RoadNatives::ROAD_RemoveNode(AMX * amx, cell * params)
 {
 	nodeId index = road::getNode(params[1]);
-	if (!(0 <= index && index < RoadPath::size())) return 0;
+	if (!roadNode::isValid(index)) return 0;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT) return 0;
 	RoadPath::removeNode(index);
@@ -582,7 +568,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNormalPointToRoad(AMX * amx, cell * pa
 	nodeId
 		startNode = road::getNode(params[1]),
 		finalNode = road::getNode(params[2]);
-	if (!(0 <= startNode && startNode < RoadPath::size() && 0 <= finalNode && finalNode < RoadPath::size())) return 0;
+	if (!roadNode::isValid(startNode) || !roadNode::isValid(finalNode)) return 0;
 	road Road = road(RoadPath::getNode(startNode), RoadPath::getNode(finalNode));
 	if (!Road.isValid()) return 0;
 	//logprintf("ROAD_GetNormalPointToRoad: startNode=%i,finalNode=%i", startNode, finalNode);
@@ -650,7 +636,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FindInvisibleNode(AMX * amx, cell * param
 {
 	nodeId
 		startNode = road::getNode(params[1]);
-	if (!(0 <= startNode && startNode < RoadPath::size())) return ROAD_NOT;
+	if (!roadNode::isValid(startNode)) return ROAD_NOT;
 	std::vector <Point3D*> points;
 
 	cell *pAddressX = NULL;
@@ -679,7 +665,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_GetMultipleNode(AMX * amx, cell * params)
 {
 	nodeId
 		node = road::getNode(params[1]);
-	if (!(0 <= node && node < RoadPath::size())) return ROAD_NOT;
+	if (!roadNode::isValid(node)) return ROAD_NOT;
 	return RoadPath::getNode(node)->getMultipleNode(params[2]).get();
 }
 
@@ -688,7 +674,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_GetNearbyMultipleNode(AMX * amx, cell * p
 {
 	nodeId
 		node = road::getNode(params[1]);
-	if (!(0 <= node && node < RoadPath::size())) return ROAD_NOT;
+	if (!roadNode::isValid(node)) return ROAD_NOT;
 	return RoadPath::getNode(node)->getNearbyMultipleNode().getParentNode()->getId();
 }
 
@@ -697,7 +683,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_IsMultipleNode(AMX * amx, cell * params)
 {
 	nodeId
 		node = road::getNode(params[1]);
-	if (!(0 <= node && node < RoadPath::size())) return 0;
+	if (!roadNode::isValid(node)) return 0;
 	return RoadPath::getNode(node)->isMultiple();
 }
 
@@ -706,7 +692,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_IsEndNode(AMX * amx, cell * params)
 {
 	nodeId
 		node = road::getNode(params[1]);
-	if (!(0 <= node && node < RoadPath::size())) return 0;
+	if (!roadNode::isValid(node)) return 0;
 	return RoadPath::getNode(node)->isEnd();
 }
 
@@ -716,7 +702,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_Get(AMX * amx, cell * params)
 	nodeId index = road::getNode(params[1]);
 	int child = params[2];
 	cell Road = 0xFFFFFFFF;
-	if (!(0 <= index && index < RoadPath::size())) return Road;
+	if (!roadNode::isValid(index)) return Road;
 	roadNode *node = RoadPath::getNode(index);
 	if (node->getId() == ROAD_NOT || !node->isChild(child)) return Road;
 
@@ -725,3 +711,128 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_Get(AMX * amx, cell * params)
 }
 
 
+
+
+
+#include "vehiclePath.h"
+
+//ROAD_Veh_Create(callback[], settings = 0, params[] = "", {Float,_}:...)
+cell AMX_NATIVE_CALL RoadNatives::Vehicle::ROAD_Veh_Create(AMX * amx, cell * params)
+{
+	if (!inited) return 0;
+	else
+	{
+		char *name;
+		amx_StrParam(amx, params[1], name);
+		int id = pController->CreatePath<vehiclePath>(name);
+		if (id == 0) {
+			return 0;
+		}
+
+		vehiclePath *path = pController->GetPath<vehiclePath>(id);
+		int settings = params[2];
+		if (settings) {
+			path->setPathFinding(0, settings & 0b1);
+			path->setPathFinding(1, settings >> 1 & 0b1);
+		}
+
+		char *format;
+		amx_StrParam(amx, params[3], format);
+		if (format) {
+			std::deque<cell> deq_params;
+			cell *addr_params;
+
+			const int offset = 4;
+			for (int i = strlen(format); --i != -1;) {
+				switch (format[i])
+				{
+				case 'b':
+				case 'B':
+				case 'c':
+				case 'C':
+				case 'd':
+				case 'D':
+				case 'i':
+				case 'I':
+				case 'f':
+				case 'F':
+					amx_GetAddr(amx, params[offset + i], &addr_params);
+					deq_params.push_back(*addr_params);
+					break;
+				case 's':
+				case 'S':
+					deq_params.push_back(params[offset + i]);
+					break;
+				default:
+					logprintf("[PathFinder] Unknown format specifer: '%c'", format[i]);
+				}
+			}
+			path->params = deq_params;
+		}
+		return id;
+	}
+}
+
+//ROAD_Veh_SetStartNode(path, index)
+cell AMX_NATIVE_CALL RoadNatives::Vehicle::ROAD_Veh_SetStartNode(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->IsPathValid(id)) {
+		return 0;
+	}
+	nodeId node = road::getNode(params[2]);
+	if (!roadNode::isValid(node)) return 0;
+
+	vehiclePath *path = pController->GetPath<vehiclePath>(id);
+	path->setStart(RoadPath::getNode(node));
+	return 1;
+}
+
+//ROAD_Veh_SetStartPos(path, Float: x, Float: y, Float: z)
+cell AMX_NATIVE_CALL RoadNatives::Vehicle::ROAD_Veh_SetStartPos(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->IsPathValid(id)) {
+		return 0;
+	}
+	float
+		x = amx_ctof(params[2]),
+		y = amx_ctof(params[3]),
+		z = amx_ctof(params[4]);
+
+	vehiclePath *path = pController->GetPath<vehiclePath>(id);
+	path->setStart(&Point3D(x, y, z));
+	return 1;
+}
+
+//ROAD_Veh_SetFinalNode(path, index)
+cell AMX_NATIVE_CALL RoadNatives::Vehicle::ROAD_Veh_SetFinalNode(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->IsPathValid(id)) {
+		return 0;
+	}
+	nodeId node = road::getNode(params[2]);
+	if (!roadNode::isValid(node)) return 0;
+
+	vehiclePath *path = pController->GetPath<vehiclePath>(id);
+	path->setFinal(RoadPath::getNode(node));
+	return 1;
+}
+
+//ROAD_Veh_SetFinalPos(path, Float: x, Float: y, Float: z)
+cell AMX_NATIVE_CALL RoadNatives::Vehicle::ROAD_Veh_SetFinalPos(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->IsPathValid(id)) {
+		return 0;
+	}
+	float
+		x = amx_ctof(params[2]),
+		y = amx_ctof(params[3]),
+		z = amx_ctof(params[4]);
+
+	vehiclePath *path = pController->GetPath<vehiclePath>(id);
+	path->setFinal(&Point3D(x, y, z));
+	return 1;
+}
