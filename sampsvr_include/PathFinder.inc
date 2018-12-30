@@ -68,6 +68,15 @@ native ROAD_Veh_SetFinalNode(path, index);
 native ROAD_Veh_SetFinalPos(path, Float: x, Float: y, Float: z);
 
 
+native ROAD_Move_Create();
+native ROAD_Move_Remove(move);
+native ROAD_Move_IsValid(move);
+native ROAD_Move_AddPoint(move, Float: x, Float: y, Float: z);
+native ROAD_Move_AddPoints(move, Float: x_points[], Float: y_points[], Float: z_points[], const size = sizeof(x_points));
+native ROAD_Move_GetPoint(move, pointid, &Float: x, &Float: y, &Float: z);
+native ROAD_Move_GetPointByPos(move, Float: x, Float: y, Float: z, lastPoint);
+native ROAD_Move_GetSize(move);
+
 
 #define ROAD_ParentNode(%0) (%0 & 0xFFFF)
 #define ROAD_ChildNode(%0) (%0 >> 16 & 0xFFFF)
