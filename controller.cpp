@@ -72,33 +72,33 @@ void Controller::StartNewThread()
 
 int Controller::MovePath::CreatePath()
 {
-	if (Controller::MovePath::movePaths.size() >= MAX_MOVE_PATHS_CREATED) return 0;
+	if (this->movePaths.size() >= MAX_MOVE_PATHS_CREATED) return 0;
 	int id = 1;
 
 	while (id < MAX_MOVE_PATHS_CREATED) {
-		if (!Controller::MovePath::IsPathValid(id)) {
+		if (!this->IsPathValid(id)) {
 			break;
 		}
 		id++;
 	}
 
 	::MovePath *movepath = new ::MovePath();
-	Controller::MovePath::movePaths.insert(std::make_pair(id, movepath));
+	this->movePaths.insert(std::make_pair(id, movepath));
 	return id;
 }
 
 bool Controller::MovePath::IsPathValid(int id)
 {
-	return (Controller::MovePath::movePaths.find(id) != Controller::MovePath::movePaths.end());
+	return (this->movePaths.find(id) != this->movePaths.end());
 }
 
 void Controller::MovePath::RemovePath(int id)
 {
-	auto movePath = Controller::MovePath::movePaths.find(id);
-	if (movePath == Controller::MovePath::movePaths.end()) {
+	auto movePath = this->movePaths.find(id);
+	if (movePath == this->movePaths.end()) {
 		return;
 	}
 
 	delete movePath->second;
-	Controller::MovePath::movePaths.erase(id);
+	this->movePaths.erase(id);
 }

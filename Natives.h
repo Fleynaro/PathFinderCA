@@ -86,6 +86,7 @@ public:
 		static cell AMX_NATIVE_CALL ROAD_Move_Remove(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Move_IsValid(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Move_AddPoint(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_AddPoints(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Move_GetPoint(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Move_GetPointByPos(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Move_GetSize(AMX* amx, cell* params);

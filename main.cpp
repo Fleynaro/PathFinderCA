@@ -120,6 +120,7 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "ROAD_Move_Remove",			RoadNatives::Move::ROAD_Move_Remove },
 	{ "ROAD_Move_IsValid",			RoadNatives::Move::ROAD_Move_IsValid },
 	{ "ROAD_Move_AddPoint",			RoadNatives::Move::ROAD_Move_AddPoint },
+	{ "ROAD_Move_AddPoints",		RoadNatives::Move::ROAD_Move_AddPoints },
 	{ "ROAD_Move_GetPoint",			RoadNatives::Move::ROAD_Move_GetPoint },
 	{ "ROAD_Move_GetPointByPos",	RoadNatives::Move::ROAD_Move_GetPointByPos },
 	{ "ROAD_Move_GetSize",			RoadNatives::Move::ROAD_Move_GetSize },

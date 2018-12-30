@@ -57,7 +57,7 @@ public:
 	{
 	public:
 		MovePath() {}
-		~MovePath();
+		~MovePath() {};
 		int CreatePath();
 		bool IsPathValid(int id);
 		void RemovePath(int id);

@@ -879,6 +879,33 @@ cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_AddPoint(AMX * amx, cell * par
 	return 1;
 }
 
+//ROAD_Move_AddPoints(move, Float: x_points[], Float: y_points[], Float: z_points[], const size = sizeof(x_points))
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_AddPoints(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+
+	cell *pAddressX = NULL;
+	cell *pAddressY = NULL;
+	cell *pAddressZ = NULL;
+	amx_GetAddr(amx, params[2], &pAddressX);
+	amx_GetAddr(amx, params[3], &pAddressY);
+	amx_GetAddr(amx, params[4], &pAddressZ);
+
+	MovePath *movepath = pController->movePathContoller->GetPath(id);
+	int iSize = static_cast<int>(params[5]);
+	for (int i = 0; i < iSize; i++) {
+		float
+			x = amx_ctof(*(pAddressX + i)),
+			y = amx_ctof(*(pAddressY + i)),
+			z = amx_ctof(*(pAddressZ + i));
+		movepath->addPoint(&movePathPoint(&Point3D(x, y, z)));
+	}
+	return 1;
+}
+
 //ROAD_Move_GetPoint(move, pointid, &Float: x, &Float: y, &Float: z)
 cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_GetPoint(AMX * amx, cell * params)
 {
