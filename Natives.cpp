@@ -836,3 +836,102 @@ cell AMX_NATIVE_CALL RoadNatives::Vehicle::ROAD_Veh_SetFinalPos(AMX * amx, cell 
 	path->setFinal(&Point3D(x, y, z));
 	return 1;
 }
+
+
+//ROAD_Move_Create()
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_Create(AMX * amx, cell * params)
+{
+	return pController->movePathContoller->CreatePath();
+}
+
+//ROAD_Move_Remove(move)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_Remove(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+	pController->movePathContoller->RemovePath(id);
+	return 1;
+}
+
+//ROAD_Move_IsValid(move)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_IsValid(AMX * amx, cell * params)
+{
+	int id = params[1];
+	return pController->movePathContoller->IsPathValid(id);
+}
+
+//ROAD_Move_AddPoint(move, Float: x, Float: y, Float: z)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_AddPoint(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+	float
+		x = amx_ctof(params[2]),
+		y = amx_ctof(params[3]),
+		z = amx_ctof(params[4]);
+
+	MovePath *movepath = pController->movePathContoller->GetPath(id);
+	movepath->addPoint(&movePathPoint(&Point3D(x, y, z)));
+	return 1;
+}
+
+//ROAD_Move_GetPoint(move, pointid, &Float: x, &Float: y, &Float: z)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_GetPoint(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+
+	MovePath *movepath = pController->movePathContoller->GetPath(id);
+	int pointId = params[2];
+	if (!movepath->isPointValid(pointId)) {
+		return 0;
+	}
+
+	movePathPoint *point = movepath->getPoint(pointId);
+	cell *pAddress = NULL;
+	float coord;
+	amx_GetAddr(amx, params[3], &pAddress);
+	coord = point->getX();
+	*pAddress = amx_ftoc(coord);
+
+	amx_GetAddr(amx, params[4], &pAddress);
+	coord = point->getY();
+	*pAddress = amx_ftoc(coord);
+
+	amx_GetAddr(amx, params[5], &pAddress);
+	coord = point->getZ();
+	*pAddress = amx_ftoc(coord);
+	return 1;
+}
+
+//ROAD_Move_GetPointByPos(move, Float: x, Float: y, Float: z, lastPoint)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_GetPointByPos(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+	float
+		x = amx_ctof(params[2]),
+		y = amx_ctof(params[3]),
+		z = amx_ctof(params[4]);
+
+	MovePath *movepath = pController->movePathContoller->GetPath(id);
+	return movepath->getPointByPos(&Point3D(x, y, z), params[5]);
+}
+
+//ROAD_Move_GetSize(move)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_GetSize(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+	return pController->movePathContoller->GetPath(id)->size();
+}

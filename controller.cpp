@@ -28,6 +28,7 @@ Controller::Controller()
 	//Init global mutexes
 	this->workQueue = new std::mutex();
 	this->callbackQueue = new std::mutex();
+	this->movePathContoller = new Controller::MovePath();
 }
 Controller::~Controller() //Выгрузка. Удаление всего и вся
 {
@@ -43,7 +44,8 @@ Controller::~Controller() //Выгрузка. Удаление всего и вся
 	delete qCallback;
 	delete workQueue;
 	delete callbackQueue;
-	//delete mapAndreas;
+	delete callbackQueue;
+	delete movePathContoller;
 }
 
 bool Controller::IsPathValid(int id)
@@ -63,4 +65,40 @@ void Controller::StartNewThread()
 	//в поток переносим все необходимые данные
 	Thread *tempThread = new Thread(this->qPath, this->qCallback, this->workQueue, this->callbackQueue); //!!! можно и не юзать this->
 	this->threadList->push_back(tempThread); //push_back() вставляет элемент в конец вектора
+}
+
+
+
+
+int Controller::MovePath::CreatePath()
+{
+	if (Controller::MovePath::movePaths.size() >= MAX_MOVE_PATHS_CREATED) return 0;
+	int id = 1;
+
+	while (id < MAX_MOVE_PATHS_CREATED) {
+		if (!Controller::MovePath::IsPathValid(id)) {
+			break;
+		}
+		id++;
+	}
+
+	::MovePath *movepath = new ::MovePath();
+	Controller::MovePath::movePaths.insert(std::make_pair(id, movepath));
+	return id;
+}
+
+bool Controller::MovePath::IsPathValid(int id)
+{
+	return (Controller::MovePath::movePaths.find(id) != Controller::MovePath::movePaths.end());
+}
+
+void Controller::MovePath::RemovePath(int id)
+{
+	auto movePath = Controller::MovePath::movePaths.find(id);
+	if (movePath == Controller::MovePath::movePaths.end()) {
+		return;
+	}
+
+	delete movePath->second;
+	Controller::MovePath::movePaths.erase(id);
 }

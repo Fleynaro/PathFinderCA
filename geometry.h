@@ -110,3 +110,34 @@ public:
 private:
 	float x, y, z;
 };
+
+
+class Line
+{
+public:
+	Line(Point3D *point1, Point3D *point2) {
+		this->point = *point1;
+		this->vector = Vector3D(point1, point2);
+	}
+	Line(Point3D *point, Vector3D *vector) {
+		this->point = *point;
+		this->vector = *vector;
+	}
+	Vector3D getVector() {
+		return this->vector;
+	}
+	Point3D getFirstPoint() {
+		return this->point;
+	}
+	Point3D getSecondPoint() {
+		return Point3D(
+			this->getFirstPoint().getX() + this->getVector().getX(),
+			this->getFirstPoint().getY() + this->getVector().getY(),
+			this->getFirstPoint().getZ() + this->getVector().getZ()
+		);
+	}
+	bool isPointOnLine2D(Point3D *point);
+private:
+	Point3D point;
+	Vector3D vector;
+};

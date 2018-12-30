@@ -129,24 +129,38 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 		node = node->getParent();
 		i++;
 	}
-	if (i == this->PATH_SIZE || i <= 2) {
+
+	if (i == 0) {
 		this->status = NOT_FOUND;
 		return;
 	}
+
 	if (getSmoothPath()->getStartRoad()->isValid()) {
 		roadNode* startSecondNode = (*(smoothPath.end() - 2))->getNode();
 		if (startSecondNode == getSmoothPath()->getStartRoad()->getNextNode()) {
 			smoothPath.pop_back();
+			i--;
 		}
 	}
-	if (getSmoothPath()->getFinalRoad()->isValid()) {
+	if (!getSmoothPath()->getFinalRoad()->isValid() || (*(smoothPath.begin() + 1))->getNode() != getSmoothPath()->getFinalRoad()->getNextNode()) {
+		smoothPath.push_front(*smoothPath.begin());
+		i++;
+	}
+
+	if (i == this->PATH_SIZE || i <= 2) {
+		this->status = NOT_FOUND;
+		return;
+	}
+
+	/*if (getSmoothPath()->getFinalRoad()->isValid()) {
 		roadNode* finalSecondNode = (*(smoothPath.begin() + 1))->getNode();
+		logprintf("!!!---- road(%i,%i) finalSecondNode=%i(final=%i)", getSmoothPath()->getFinalRoad()->getParentNode()->getId(), getSmoothPath()->getFinalRoad()->getNextNode()->getId(), finalSecondNode->getId(), (*(smoothPath.begin()))->getNode()->getId());
 		if (finalSecondNode == getSmoothPath()->getFinalRoad()->getNextNode()) {
 			smoothPath.pop_front();
 		}
-	}
+	}*/
 
-	//logprintf("RoadPath::createSmoothPath %i", i);
+	//logprintf("RoadPath::createSmoothPath %i (size = %i)", i, smoothPath.size());
 	roadPathNode *firstNode, *middleNode;
 	firstNode = smoothPath.back();
 	smoothPath.pop_back();
@@ -172,7 +186,7 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 				betweenAngle = (float)180.0 - betweenAngle;
 			}
 			//logprintf("------>firstNode = %i, middleNode=%i, lastNode=%i: betweenAngle=%f", firstNode->getNode()->getId(), middleNode->getNode()->getId(), lastNode->getNode()->getId(), betweenAngle);
-			if (betweenAngle > 30.0)
+			if (betweenAngle > 30.0 && middleNode != lastNode)
 			{
 				road roadVector(firstNode->getNode(), lastNode->getNode()); //create a vector as a road
 				float

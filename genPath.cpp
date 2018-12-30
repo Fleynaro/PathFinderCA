@@ -58,7 +58,7 @@ void combinedPath::Find()
 		path->Destroy();
 		this->paths.pop_front();
 	}
-	this->status = state::FOUND;
+	this->status = genPath::state::FOUND;
 }
 
 void combinedPath::Destroy()

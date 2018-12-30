@@ -13,6 +13,7 @@
 #include "data.h"
 #include "thread.h"
 #include "CA_API.h"
+#include "MovePath.h"
 
 class Controller
 {
@@ -51,6 +52,23 @@ public:
 	std::queue<callbackWorkerData*> *qCallback;
 	std::mutex *workQueue;
 	std::mutex *callbackQueue;
+
+	class MovePath
+	{
+	public:
+		MovePath() {}
+		~MovePath();
+		int CreatePath();
+		bool IsPathValid(int id);
+		void RemovePath(int id);
+		::MovePath *GetPath(int id) {
+			return this->movePaths.find(id)->second;
+		};
+	private:
+		std::map<int, ::MovePath*> movePaths;
+	};
+
+	Controller::MovePath *movePathContoller;
 private:
 	std::vector<Thread*> *threadList;
 	std::map<int, genPath*> *paths;

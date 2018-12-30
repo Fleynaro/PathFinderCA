@@ -23,8 +23,8 @@ struct pathPoint
 class genPath
 {
 public:
-	enum state { FOUND, NOT_FOUND, PROCESS };
-	genPath::state status;
+	enum state { FOUND, NOT_FOUND, PROCESS, NOT_STARTED };
+	genPath::state status = NOT_STARTED;
 
 	genPath();
 	std::deque <pathPoint*> *pathData;

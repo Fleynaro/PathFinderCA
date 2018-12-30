@@ -43,6 +43,7 @@
 #define NULL_POINT -1000.0f
 #define PATHFINDER_VERSION "2.0 Road finding future supported."
 #define MAX_PATHS_CREATED 40
+#define MAX_MOVE_PATHS_CREATED 1000
 
 
 

@@ -89,6 +89,7 @@ bool Path::CheckWall(mapPoint *parent, mapPoint *child)
 
 void Path::Find()
 {
+	if (this->status != NOT_STARTED) return;
 	this->status = PROCESS;
 	//logprintf("this->cellSize = %f", this->cellSize);
 

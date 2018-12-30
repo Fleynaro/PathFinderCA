@@ -69,6 +69,9 @@
     <ClCompile Include="vehiclePath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MovePath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -117,6 +120,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vehiclePath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovePath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

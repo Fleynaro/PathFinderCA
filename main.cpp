@@ -114,6 +114,15 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "ROAD_Veh_SetStartPos",		RoadNatives::Vehicle::ROAD_Veh_SetStartPos },
 	{ "ROAD_Veh_SetFinalNode",		RoadNatives::Vehicle::ROAD_Veh_SetFinalNode },
 	{ "ROAD_Veh_SetFinalPos",		RoadNatives::Vehicle::ROAD_Veh_SetFinalPos },
+
+
+	{ "ROAD_Move_Create",			RoadNatives::Move::ROAD_Move_Create },
+	{ "ROAD_Move_Remove",			RoadNatives::Move::ROAD_Move_Remove },
+	{ "ROAD_Move_IsValid",			RoadNatives::Move::ROAD_Move_IsValid },
+	{ "ROAD_Move_AddPoint",			RoadNatives::Move::ROAD_Move_AddPoint },
+	{ "ROAD_Move_GetPoint",			RoadNatives::Move::ROAD_Move_GetPoint },
+	{ "ROAD_Move_GetPointByPos",	RoadNatives::Move::ROAD_Move_GetPointByPos },
+	{ "ROAD_Move_GetSize",			RoadNatives::Move::ROAD_Move_GetSize },
 	{ 0,                        0 }
 };
  
@@ -190,8 +199,8 @@ PLUGIN_EXPORT void PLUGIN_CALL ProcessTick()
 						amx_PushArray(*a, &tickAmxAddress[0], 0, rawDataX, tempCallbackWorker->nodeX->size() + 1);
 
 						//other data
-						amx_Push(*a, tempCallbackWorker->resultCode);
 						amx_Push(*a, amx_ftoc(tempCallbackWorker->genDist));
+						amx_Push(*a, tempCallbackWorker->resultCode);
 						amx_Exec(*a, NULL, pathCallbackIndex);
 
 						//free

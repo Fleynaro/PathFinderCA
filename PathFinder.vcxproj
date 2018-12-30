@@ -90,6 +90,7 @@
     <ClCompile Include="genPath.cpp" />
     <ClCompile Include="geometry.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MovePath.cpp" />
     <ClCompile Include="Natives.cpp" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="RoadPath.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="genPath.h" />
     <ClInclude Include="geometry.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="MovePath.h" />
     <ClInclude Include="Natives.h" />
     <ClInclude Include="path.h" />
     <ClInclude Include="RoadPath.h" />

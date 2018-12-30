@@ -76,4 +76,18 @@ public:
 		static cell AMX_NATIVE_CALL ROAD_Veh_SetFinalNode(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Veh_SetFinalPos(AMX* amx, cell* params);
 	};
+
+	class Move
+	{
+	public:
+		Move() {};
+		~Move() {};
+		static cell AMX_NATIVE_CALL ROAD_Move_Create(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_Remove(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_IsValid(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_AddPoint(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_GetPoint(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_GetPointByPos(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_GetSize(AMX* amx, cell* params);
+	};
 };

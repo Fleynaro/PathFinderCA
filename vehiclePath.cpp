@@ -121,12 +121,20 @@ void vehiclePath::Find()
 	//logprintf(">>>> adding");
 	if (this->firstPath != NULL) {
 		combinedPath::addPath(this->firstPath);
+		this->firstPath->Find();
+		if (!this->firstPath->pathData->empty()) {
+			this->firstPath->pathData->pop_front();
+		}
 	}
 	if (this->roadPath != NULL) {
 		combinedPath::addPath(this->roadPath);
 	}
 	if (this->lastPath != NULL) {
 		combinedPath::addPath(this->lastPath);
+		this->lastPath->Find();
+		if (!this->lastPath->pathData->empty()) {
+			this->lastPath->pathData->pop_back();
+		}
 	}
 	//logprintf(">>>> finding");
 	combinedPath::Find();
