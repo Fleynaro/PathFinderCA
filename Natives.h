@@ -90,5 +90,9 @@ public:
 		static cell AMX_NATIVE_CALL ROAD_Move_GetPoint(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Move_GetPointByPos(AMX* amx, cell* params);
 		static cell AMX_NATIVE_CALL ROAD_Move_GetSize(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_GetDistBetweenPoints(AMX* amx, cell* params);
+
+		static cell AMX_NATIVE_CALL ROAD_Move_SetExtra(AMX* amx, cell* params);
+		static cell AMX_NATIVE_CALL ROAD_Move_GetExtra(AMX* amx, cell* params);
 	};
 };

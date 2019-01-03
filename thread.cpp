@@ -116,7 +116,6 @@ void Thread::PathCalculator()
 
 			if (tempPath->status == genPath::state::FOUND)
 			{
-				logprintf("success found... %i", genPath::state::FOUND);
 				//Создаем данные для отправки уже потом в павн через callback
 				callbackWorkerData *tempCallbackWorker = new callbackWorkerData();
 				tempCallbackWorker->name = tempPath->callback;

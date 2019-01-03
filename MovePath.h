@@ -29,10 +29,18 @@ public:
 		return id >= 0 && id < this->size();
 	}
 	int getPointByPos(Point3D *pos, int lastPoint);
+	float getDistBetweenPoints(int p1, int p2);
 	int size() {
 		return points.size();
 	}
+	void setExtra(int index, cell value) {
+		extra[index] = value;
+	}
+	cell getExtra(int index) {
+		return extra[index];
+	}
 private:
 	std::vector <movePathPoint> points;
+	cell extra[MAX_MOVEPATH_EXTRA_VALUES];
 };
 

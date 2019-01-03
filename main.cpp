@@ -116,14 +116,17 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "ROAD_Veh_SetFinalPos",		RoadNatives::Vehicle::ROAD_Veh_SetFinalPos },
 
 
-	{ "ROAD_Move_Create",			RoadNatives::Move::ROAD_Move_Create },
-	{ "ROAD_Move_Remove",			RoadNatives::Move::ROAD_Move_Remove },
-	{ "ROAD_Move_IsValid",			RoadNatives::Move::ROAD_Move_IsValid },
-	{ "ROAD_Move_AddPoint",			RoadNatives::Move::ROAD_Move_AddPoint },
-	{ "ROAD_Move_AddPoints",		RoadNatives::Move::ROAD_Move_AddPoints },
-	{ "ROAD_Move_GetPoint",			RoadNatives::Move::ROAD_Move_GetPoint },
-	{ "ROAD_Move_GetPointByPos",	RoadNatives::Move::ROAD_Move_GetPointByPos },
-	{ "ROAD_Move_GetSize",			RoadNatives::Move::ROAD_Move_GetSize },
+	{ "ROAD_Move_Create",					RoadNatives::Move::ROAD_Move_Create },
+	{ "ROAD_Move_Remove",					RoadNatives::Move::ROAD_Move_Remove },
+	{ "ROAD_Move_IsValid",					RoadNatives::Move::ROAD_Move_IsValid },
+	{ "ROAD_Move_AddPoint",					RoadNatives::Move::ROAD_Move_AddPoint },
+	{ "ROAD_Move_AddPoints",				RoadNatives::Move::ROAD_Move_AddPoints },
+	{ "ROAD_Move_GetPoint",					RoadNatives::Move::ROAD_Move_GetPoint },
+	{ "ROAD_Move_GetPointByPos",			RoadNatives::Move::ROAD_Move_GetPointByPos },
+	{ "ROAD_Move_GetSize",					RoadNatives::Move::ROAD_Move_GetSize },
+	{ "ROAD_Move_GetDistBetweenPoints",		RoadNatives::Move::ROAD_Move_GetDistBetweenPoints },
+	{ "ROAD_Move_SetExtra",					RoadNatives::Move::ROAD_Move_SetExtra },
+	{ "ROAD_Move_GetExtra",					RoadNatives::Move::ROAD_Move_GetExtra },
 	{ 0,                        0 }
 };
  

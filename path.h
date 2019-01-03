@@ -33,32 +33,40 @@ public:
 	mapPoint *finalPoint;
 
 	int SIZE_X, SIZE_Y;
-	void SetPlaneSize(int x, int y);
-	
-	bool CheckWall(mapPoint *parent, mapPoint *child);
-	void SetDefaultBeginRelativeCoord();
-	void SetBeginRelativeCoord(float x, float y, int width, int height);
-	void CreatePath(mapPoint * point);
-	bool IsFinal(mapPoint * point);
-	bool Check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z);
-	std::vector <mapPoint*> OpenCeils(mapPoint * point);
+	void setPlaneSize(int x, int y);
+
+	bool checkWall(mapPoint *parent, mapPoint *child);
+	void setDefaultBeginRelativeCoord();
+	void setBeginRelativeCoord(float x, float y, int width, int height);
+	void createPath(mapPoint * point);
+	bool isFinal(mapPoint * point);
+	bool check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z);
+	void openCeils(mapPoint *parent, std::vector <mapPoint*> *ceils);
 	mapPoint * getMapPoint(int x, int y);
+
+	void getLocalXY(float X, float Y, short int &x, short int &y) {
+		x = this->beginX + (int)round((X - this->startX) / this->cellSize);
+		y = this->beginY + (int)round((Y - this->startY) / this->cellSize);
+	}
 
 	void Find() override;
 	void Destroy() override;
 
 	~Path();
 private:
+	int interpolation = 0;
 };
 
 struct mapPoint
 {
-	int x = 0;
-	int y = 0;
+	short int x = 0;
+	short int y = 0;
 	float z = 0.0;
 	int parent = 0;
 	int G = 0, F = 0;
-	bool recheck = false, closed = false;
+	bool
+		recheck = false,
+		closed = false;
 	
 	Path * path;
 	
@@ -70,48 +78,49 @@ struct mapPoint
 
 	mapPoint(float x, float y, Path *path) {
 		this->path = path;
-		this->SetLocalXY(x, y);
+		this->setLocalXY(x, y);
 	}
 
 	void open()
 	{
-		if (this->IsOpen()) return;
-		this->path->mapData->insert(std::make_pair(this->GetNode(), this));
+		if (this->isOpen()) return;
+		this->path->mapData->insert(std::make_pair(this->getNodeCode(), this));
 	}
-	void GetGlobalXY(float &x, float &y) {
-		//logprintf("GetGlobalXY (%f,%f | %f,%f)", this->path->startX);
+	void getGlobalXY(float &x, float &y) {
 		x = this->path->startX + (this->x - this->path->beginX) * this->path->cellSize;
 		y = this->path->startY + (this->y - this->path->beginY) * this->path->cellSize;
 	}
-	void SetLocalXY(float x, float y) {
-		//logprintf("SetLocalXY(%f,%f) = %f(%i)", x,y, x - this->path->startX, round((x - this->path->startX) / this->path->cellSize));
-		this->x = this->path->beginX + (int)round((x - this->path->startX) / this->path->cellSize);
-		this->y = this->path->beginY + (int)round((y - this->path->startY) / this->path->cellSize);
+	void getGlobalXYZ(float &x, float &y, float &z) {
+		this->getGlobalXY(x, y);
+		z = this->z;
 	}
-	void SetG(int g) {
+	void setLocalXY(float x, float y) {
+		this->path->getLocalXY(x, y, this->x, this->y);
+	}
+	void setG(int g) {
 		this->G = g;
-		this->F = this->GetF();
+		this->F = this->getF();
 	}
-	bool IsValid() {
+	bool isValid() {
 		return (0 <= x && x < this->path->SIZE_X && 0 <= y && y < this->path->SIZE_Y);
 	}
-	bool IsClosed() {
+	bool isClosed() {
 		return this->closed;
 	}
-	bool IsOpen() {
-		return (this->path->mapData->count(this->GetNode()) != 0);
+	bool isOpen() {
+		return (this->path->mapData->count(this->getNodeCode()) != 0);
 	}
-	bool IsBegining() {
+	bool isBegining() {
 		return (this->x == this->path->beginX && this->y == this->path->beginY);
 	}
-	mapPoint *GetParent() {
+	mapPoint *getParent() {
 		return this->path->mapData->find(this->parent)->second;
 	}
-	int GetNode()
+	int getNodeCode()
 	{
 		return XYToNode(this->x, this->y);
 	}
-	int GetF()
+	int getF()
 	{
 		int H;
 		if (this->path->type != PATH_TYPE_LINE) {

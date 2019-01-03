@@ -8,11 +8,11 @@ vehiclePath::vehiclePath()
 }
 
 
-void vehiclePath::setStart_(Point3D *pos, float roadRadius)
+bool vehiclePath::setStart_(Point3D *pos, float roadRadius)
 {
 	Point3D normalPoint;
 	road startRoad = road::findNearbyRoad(pos, roadRadius, &normalPoint);
-	if (!startRoad.isValid()) return;
+	if (!startRoad.isValid()) return false;
 	
 	if (this->pathEnabled[0]) {
 		this->firstPath = new Path();
@@ -27,8 +27,9 @@ void vehiclePath::setStart_(Point3D *pos, float roadRadius)
 
 	this->roadPath->setStart(startRoad.getParentNode()->getId());
 	this->roadPath->getSmoothPath()->setStartRoad(&startRoad);
+	return true;
 }
-void vehiclePath::setStart_(Point3D *pos, roadNode *node)
+bool vehiclePath::setStart_(Point3D *pos, roadNode *node)
 {
 	if (this->pathEnabled[0]) {
 		this->firstPath = new Path();
@@ -42,18 +43,20 @@ void vehiclePath::setStart_(Point3D *pos, roadNode *node)
 	}
 
 	this->roadPath->setStart(node->getId());
+	return true;
 }
-void vehiclePath::setStart_(roadNode *node)
+bool vehiclePath::setStart_(roadNode *node)
 {
 	this->roadPath->setStart(node->getId());
 	this->firstPath = NULL;
+	return true;
 }
 
-void vehiclePath::setFinal_(Point3D *pos, float roadRadius)
+bool vehiclePath::setFinal_(Point3D *pos, float roadRadius)
 {
 	Point3D normalPoint;
 	road finalRoad = road::findNearbyRoad(pos, roadRadius, &normalPoint);
-	if (!finalRoad.isValid()) return;
+	if (!finalRoad.isValid()) return false;
 
 	if (this->pathEnabled[1]) {
 		this->lastPath = new Path();
@@ -68,8 +71,9 @@ void vehiclePath::setFinal_(Point3D *pos, float roadRadius)
 
 	this->roadPath->setFinal(finalRoad.getParentNode()->getId());
 	this->roadPath->getSmoothPath()->setFinalRoad(&finalRoad);
+	return true;
 }
-void vehiclePath::setFinal_(Point3D *pos, roadNode *node)
+bool vehiclePath::setFinal_(Point3D *pos, roadNode *node)
 {
 	if (this->pathEnabled[1]) {
 		this->lastPath = new Path();
@@ -83,39 +87,52 @@ void vehiclePath::setFinal_(Point3D *pos, roadNode *node)
 	}
 
 	this->roadPath->setFinal(node->getId());
+	return true;
 }
-void vehiclePath::setFinal_(roadNode *node)
+bool vehiclePath::setFinal_(roadNode *node)
 {
 	this->roadPath->setFinal(node->getId());
 	this->lastPath = NULL;
+	return true;
 }
 
 void vehiclePath::Find()
 {
-	//logprintf("!!!---- startNode=%i, finalNode=%i, (%f,%f,%f; %f,%f,%f)", startNode->getId(), finalNode->getId(), start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
+	//logprintf("!!!---- startNode=%i, finalNode=%i, (%f,%f,%f; %f,%f,%f)", startNode, finalNode, start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
+	bool success = false;
 	if (this->startNode != NULL) {
 		if (this->start.isValid()) {
-			this->setStart_(&this->start, this->startNode);
+			success = this->setStart_(&this->start, this->startNode);
 		}
 		else {
-			this->setStart_(this->startNode);
+			success = this->setStart_(this->startNode);
 		}
 	}
 	else {
-		this->setStart_(&this->start, this->roadRadius_);
+		success = this->setStart_(&this->start, this->roadRadius_);
 	}
 
+	if (!success) {
+		this->status = NOT_FOUND;
+		return;
+	}
+	
 	if (this->finalNode != NULL) {
 		if (this->end.isValid()) {
-			this->setFinal_(&this->end, this->finalNode);
+			success = this->setFinal_(&this->end, this->finalNode);
 		}
 		else {
 			//logprintf(">>>> this->finalNode_");
-			this->setFinal_(this->finalNode);
+			success = this->setFinal_(this->finalNode);
 		}
 	}
 	else {
-		this->setFinal_(&this->end, this->roadRadius_);
+		success = this->setFinal_(&this->end, this->roadRadius_);
+	}
+
+	if (!success) {
+		this->status = NOT_FOUND;
+		return;
 	}
 	
 	//logprintf(">>>> adding");

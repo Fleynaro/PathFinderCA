@@ -104,7 +104,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetPlaneSize(AMX* amx, cell* params)
 			return 0;
 		}
 		Path *path = pController->GetPath<Path>(id);
-		path->SetPlaneSize(params[2], params[3]);
+		path->setPlaneSize(params[2], params[3]);
 		return 1;
 	}
 }
@@ -150,7 +150,7 @@ cell AMX_NATIVE_CALL Natives::PF_SetBeginRelativeCoord(AMX* amx, cell* params)
 			return 0;
 		}
 		Path *path = pController->GetPath<Path>(id);
-		path->SetBeginRelativeCoord(amx_ctof(params[2]), amx_ctof(params[3]), params[4], params[5]);
+		path->setBeginRelativeCoord(amx_ctof(params[2]), amx_ctof(params[3]), params[4], params[5]);
 		return 1;
 	}
 }
@@ -637,7 +637,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FindInvisibleNode(AMX * amx, cell * param
 	nodeId
 		startNode = road::getNode(params[1]);
 	if (!roadNode::isValid(startNode)) return ROAD_NOT;
-	std::vector <Point3D*> points;
+	std::vector <Point3D> points;
 
 	cell *pAddressX = NULL;
 	cell *pAddressY = NULL;
@@ -652,7 +652,7 @@ cell AMX_NATIVE_CALL RoadNatives::ROAD_FindInvisibleNode(AMX * amx, cell * param
 			x = amx_ctof(*(pAddressX + i)),
 			y = amx_ctof(*(pAddressY + i)),
 			z = amx_ctof(*(pAddressZ + i));
-		points.push_back(&Point3D(x, y, z));
+		points.push_back(Point3D(x, y, z));
 	}
 
 	roadNode *node = roadNode::getInvisibleNode(&points, RoadPath::getNode(startNode));
@@ -731,7 +731,7 @@ cell AMX_NATIVE_CALL RoadNatives::Vehicle::ROAD_Veh_Create(AMX * amx, cell * par
 
 		vehiclePath *path = pController->GetPath<vehiclePath>(id);
 		int settings = params[2];
-		if (settings) {
+		if (settings != -1) {
 			path->setPathFinding(0, settings & 0b1);
 			path->setPathFinding(1, settings >> 1 & 0b1);
 		}
@@ -879,7 +879,7 @@ cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_AddPoint(AMX * amx, cell * par
 	return 1;
 }
 
-//ROAD_Move_AddPoints(move, Float: x_points[], Float: y_points[], Float: z_points[], const size = sizeof(x_points))
+//ROAD_Move_AddPoints(move, Float: x_points[], Float: y_points[], Float: z_points[], const size = sizeof(x_points), const start = 0)
 cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_AddPoints(AMX * amx, cell * params)
 {
 	int id = params[1];
@@ -896,7 +896,7 @@ cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_AddPoints(AMX * amx, cell * pa
 
 	MovePath *movepath = pController->movePathContoller->GetPath(id);
 	int iSize = static_cast<int>(params[5]);
-	for (int i = 0; i < iSize; i++) {
+	for (int i = static_cast<int>(params[6]); i < iSize; i++) {
 		float
 			x = amx_ctof(*(pAddressX + i)),
 			y = amx_ctof(*(pAddressY + i)),
@@ -961,4 +961,36 @@ cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_GetSize(AMX * amx, cell * para
 		return 0;
 	}
 	return pController->movePathContoller->GetPath(id)->size();
+}
+
+//ROAD_Move_GetDistBetweenPoints(move, index1, index2)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_GetDistBetweenPoints(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+	float dist = pController->movePathContoller->GetPath(id)->getDistBetweenPoints(params[2], params[3]);
+	return amx_ftoc(dist);
+}
+
+//ROAD_Move_SetExtra(move, index, value)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_SetExtra(AMX * amx, cell * params)
+{
+	int id = params[1];
+	if (!pController->movePathContoller->IsPathValid(id)) {
+		return 0;
+	}
+	int index = params[2];
+	if (index < 0 || index > 2) return 0;
+	
+	cell value = params[3];
+	pController->movePathContoller->GetPath(id)->setExtra(index, value);
+	return 1;
+}
+
+//ROAD_Move_GetExtra(move, index)
+cell AMX_NATIVE_CALL RoadNatives::Move::ROAD_Move_GetExtra(AMX * amx, cell * params)
+{
+	return pController->movePathContoller->GetPath(params[1])->getExtra(params[2]);
 }

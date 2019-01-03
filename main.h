@@ -44,7 +44,7 @@
 #define PATHFINDER_VERSION "2.0 Road finding future supported."
 #define MAX_PATHS_CREATED 40
 #define MAX_MOVE_PATHS_CREATED 1000
-
+#define MAX_MOVEPATH_EXTRA_VALUES 3
 
 
 typedef void(*logprintf_t)(char* format, ...);

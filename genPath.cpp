@@ -70,6 +70,7 @@ combinedPath::~combinedPath()
 {
 	while (!this->paths.empty()) {
 		this->paths.front()->Destroy();
+		this->paths.pop_front();
 	}
 }
 

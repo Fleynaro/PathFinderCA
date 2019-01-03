@@ -38,13 +38,13 @@ public:
 
 	void Find() override;
 private:
-	void setStart_(Point3D *pos, float roadRadius = 8.0);
-	void setStart_(Point3D *pos, roadNode *node);
-	void setStart_(roadNode *node);
+	bool setStart_(Point3D *pos, float roadRadius = 8.0);
+	bool setStart_(Point3D *pos, roadNode *node);
+	bool setStart_(roadNode *node);
 
-	void setFinal_(Point3D *pos, float roadRadius = 8.0);
-	void setFinal_(Point3D *pos, roadNode *node);
-	void setFinal_(roadNode *node);
+	bool setFinal_(Point3D *pos, float roadRadius = 8.0);
+	bool setFinal_(Point3D *pos, roadNode *node);
+	bool setFinal_(roadNode *node);
 
 	Path *firstPath = NULL;
 	Path *lastPath = NULL;

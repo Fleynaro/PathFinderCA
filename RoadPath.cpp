@@ -5,7 +5,7 @@ nodeId RoadPath::lastNodeId;
 
 RoadPath::RoadPath()
 {
-	this->PATH_SIZE = 1500;
+	this->PATH_SIZE = 20000;
 }
 
 
@@ -37,6 +37,7 @@ bool RoadPath::isPathNode(nodeId index)
 
 void RoadPath::Find()
 {
+	if (this->status != NOT_STARTED) return;
 	this->status = PROCESS;
 
 	roadPathNode
@@ -130,7 +131,7 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 		i++;
 	}
 
-	if (i == 0) {
+	if (i == this->PATH_SIZE || i <= 2) {
 		this->status = NOT_FOUND;
 		return;
 	}
@@ -139,28 +140,17 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 		roadNode* startSecondNode = (*(smoothPath.end() - 2))->getNode();
 		if (startSecondNode == getSmoothPath()->getStartRoad()->getNextNode()) {
 			smoothPath.pop_back();
-			i--;
+			if (--i == 2) {
+				this->status = NOT_FOUND;
+				return;
+			}
 		}
 	}
 	if (!getSmoothPath()->getFinalRoad()->isValid() || (*(smoothPath.begin() + 1))->getNode() != getSmoothPath()->getFinalRoad()->getNextNode()) {
 		smoothPath.push_front(*smoothPath.begin());
 		i++;
 	}
-
-	if (i == this->PATH_SIZE || i <= 2) {
-		this->status = NOT_FOUND;
-		return;
-	}
-
-	/*if (getSmoothPath()->getFinalRoad()->isValid()) {
-		roadNode* finalSecondNode = (*(smoothPath.begin() + 1))->getNode();
-		logprintf("!!!---- road(%i,%i) finalSecondNode=%i(final=%i)", getSmoothPath()->getFinalRoad()->getParentNode()->getId(), getSmoothPath()->getFinalRoad()->getNextNode()->getId(), finalSecondNode->getId(), (*(smoothPath.begin()))->getNode()->getId());
-		if (finalSecondNode == getSmoothPath()->getFinalRoad()->getNextNode()) {
-			smoothPath.pop_front();
-		}
-	}*/
-
-	//logprintf("RoadPath::createSmoothPath %i (size = %i)", i, smoothPath.size());
+	
 	roadPathNode *firstNode, *middleNode;
 	firstNode = smoothPath.back();
 	smoothPath.pop_back();
@@ -371,9 +361,9 @@ road roadNode::getNearbyMultipleNode()
 {
 	float dist1, dist2;
 	road node1 = this->getMultipleNode(0, dist1);
-	if (node1.isValid()) {
-		road node2 = this->getMultipleNode(1, dist2);
-		if (dist1 < dist2 || node2.isValid()) {
+	road node2 = this->getMultipleNode(1, dist2);
+	if (node1.isValid() && node2.isValid()) {
+		if (dist1 < dist2) {
 			return node1;
 		}
 		else {
@@ -410,12 +400,12 @@ road roadNode::getMultipleNode(int child, roadNode *excludeNode)
 	return road(childNode, parentNode);
 }
 
-roadNode * roadNode::getInvisibleNode(std::vector <Point3D*> *points, roadNode * node, roadNode * parentNode, int level)
+roadNode * roadNode::getInvisibleNode(std::vector <Point3D> *points, roadNode * node, roadNode * parentNode, int level)
 {
 	for (int i = 0; i < 4; i++) {
 		if (!node->isChild(i)) break;
 		roadNode *child = node->getMultipleNode(i).getParentNode();
-		if (child == NULL) {
+		if (child == NULL || !child->isValid()) {
 			continue;
 		}
 		if (child != parentNode) {
@@ -434,12 +424,12 @@ roadNode * roadNode::getInvisibleNode(std::vector <Point3D*> *points, roadNode *
 	return NULL;
 }
 
-bool roadNode::isInvisible(std::vector <Point3D*> *points, int world)
+bool roadNode::isInvisible(std::vector <Point3D> *points, int world)
 {
-	for (const auto point : *points) {
-		if (point->getWorld() != world) continue;
+	for (auto point : *points) {
+		if (point.getWorld() != world) continue;
 		float h;
-		if (api->CA_RayCastLine(this->getX(), this->getY(), this->getZ() + (float)1.0, point->getX(), point->getY(), point->getZ() + (float)1.0, h, h, h, 0) != 0) {
+		if (api->CA_RayCastLine(this->getX(), this->getY(), this->getZ() + (float)1.0, point.getX(), point.getY(), point.getZ() + (float)1.0, h, h, h, 0) == 0) {
 			return false;
 		}
 	}
@@ -495,6 +485,7 @@ road road::findNearbyRoad(Point3D *pos, float radius, Point3D *normal, float min
 
 	for (int i = 0, size = RoadPath::size(); i < size; i++) {
 		roadNode *node = RoadPath::getNode(i);
+		if (!node->isValid()) continue;
 		float dist = node->getDist2To(pos);
 		if (dist <= 50.0*50.0) {
 			for (int j = 0; j < 4; j++) {
