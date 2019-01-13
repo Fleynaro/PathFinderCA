@@ -1,7 +1,5 @@
 #include "Natives.h"
 
-
-
 // native PathFinder_Init(threads);
 cell AMX_NATIVE_CALL Natives::PF_Init(AMX* amx, cell* params)
 {
@@ -169,6 +167,21 @@ cell AMX_NATIVE_CALL Natives::PF_SetStart(AMX* amx, cell* params)
 		path->startY = amx_ctof(params[3]);
 		path->startZ = amx_ctof(params[4]);
 		//logprintf("[PathFinder] path->start = %f(%f),%f,%f", path->startX, amx_ctof(params[2]), path->startY, path->startZ);
+		return 1;
+	}
+}
+//PF_SetMinPossibleH(path, H)
+cell AMX_NATIVE_CALL Natives::PF_SetMinPossibleH(AMX * amx, cell * params)
+{
+	if (!inited) return 0;
+	else
+	{
+		int id = params[1];
+		if (!pController->IsPathValid(id)) {
+			return 0;
+		}
+		Path *path = pController->GetPath<Path>(id);
+		path->minPossibleH = params[2];
 		return 1;
 	}
 }

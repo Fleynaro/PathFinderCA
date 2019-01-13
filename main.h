@@ -51,3 +51,5 @@ typedef void(*logprintf_t)(char* format, ...);
 #include "SDK/amx/amx.h"
 #include "SDK/plugincommon.h"
 extern logprintf_t logprintf;
+
+extern void **ppPluginData;

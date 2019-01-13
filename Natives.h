@@ -29,6 +29,7 @@ public:
 	static cell AMX_NATIVE_CALL PF_SetWallSize(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_SetBeginRelativeCoord(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_SetStart(AMX* amx, cell* params);
+	static cell AMX_NATIVE_CALL PF_SetMinPossibleH(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_SetFinalAsPoint(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_SetFinalAsCircle(AMX* amx, cell* params);
 	static cell AMX_NATIVE_CALL PF_SetFinalAsLine(AMX* amx, cell* params);

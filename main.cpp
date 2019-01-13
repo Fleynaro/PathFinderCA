@@ -22,6 +22,7 @@
 #include "SDK/plugincommon.h"
 
 extern void *pAMXFunctions;
+void **ppPluginData;
 logprintf_t logprintf;
 bool inited = false;
 int ticked = 0;
@@ -47,6 +48,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load( void **ppData )
 {
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 	logprintf = reinterpret_cast<logprintf_t>(ppData[PLUGIN_DATA_LOGPRINTF]);
+	ppPluginData = ppData;
 
 	//Message
 	logprintf("=========================================");
@@ -81,6 +83,7 @@ AMX_NATIVE_INFO pathFinderNatives[] =
 	{ "PF_SetWorld",				Natives::PF_SetWorld },
 	{ "PF_SetWallSize",				Natives::PF_SetWallSize },
 	{ "PF_SetBeginRelativeCoord",	Natives::PF_SetBeginRelativeCoord },
+	{ "PF_SetMinPossibleH",			Natives::PF_SetMinPossibleH },
 	{ "PF_SetStart",				Natives::PF_SetStart },
 	{ "PF_SetFinalAsPoint",			Natives::PF_SetFinalAsPoint },
 	{ "PF_SetFinalAsCircle",		Natives::PF_SetFinalAsCircle },

@@ -82,6 +82,9 @@ void Path::Find()
 	point->z = this->startZ;
 	point->open();
 
+	//if not found use this point as the closest
+	mapPoint *nearestPoint = NULL;
+
 	int stepCount = 0;
   //	this->interpolation = 3;
 	while ( !this->isFinal(point) )
@@ -177,14 +180,29 @@ void Path::Find()
 
 		if (!found) {
 			if (point->isBegining()) {
-				this->status = FOUND;
-				return;
+				this->status = NOT_FOUND;
+				break;
 			}
 			point = point->getParent();
 		}
 
 		if ( this->mapData->size() > (size_t)this->PATH_SIZE ) {
 			this->status = NOT_FOUND;
+			break;
+		}
+
+		if (this->minPossibleH != 0) {
+			if (!point->closed && point->getH() <= this->minPossibleH ) {
+				if (nearestPoint == NULL || point->F < nearestPoint->F) {
+					nearestPoint = point;
+				}
+			}
+		}
+	}
+	if (this->status == NOT_FOUND) {
+		if (nearestPoint != NULL) {
+			point = nearestPoint;
+		} else {
 			return;
 		}
 	}

@@ -29,6 +29,7 @@ public:
 	float endX, endY, endZ;
 	float cellSize;
 	float WALL_UP, WALL_DOWN;
+	int minPossibleH = 0;
 	unsigned long uID;
 	mapPoint *finalPoint;
 
@@ -127,5 +128,9 @@ struct mapPoint
 			H = abs(this->x - this->path->finalPoint->x) + abs(this->y - this->path->finalPoint->y);
 		}
 		return this->G + H;
+	}
+	int getH()
+	{
+		return this->F - this->G;
 	}
 };
