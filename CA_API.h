@@ -66,7 +66,8 @@ namespace API
 			#elif defined(LINUX)
 				void *CA = dlopen("ColAndreas.so", RTLD_LAZY);
 				if (CA) {
-					return (T_funct)dlsym(CA, funct);
+					CA_getAPI getInterfaceClass = (CA_getAPI)dlsym(CA, "CA_getAPI");
+					return getInterfaceClass();
 				else {
 					logprintf("PathFinder plugin error: could not load ColAndreas.so. Please, make ColAndreas load before this plugin.");
 				}
