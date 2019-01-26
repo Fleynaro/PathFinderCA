@@ -29,7 +29,6 @@ int ticked = 0;
 int maxTicked = 10;
 std::vector<AMX*> amxList;
 Controller *pController;
-CA_API *api;
 //----------------------------------------------------------
 // Main Plugin Data
 //----------------------------------------------------------

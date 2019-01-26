@@ -10,7 +10,6 @@ extern bool inited;
 extern int ticked;
 extern int maxTicked;
 extern std::vector<AMX*> amxList;
-extern CA_API *api;
 
 class Natives
 {

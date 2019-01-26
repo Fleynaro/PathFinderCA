@@ -221,8 +221,9 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 							wy = firstNode->getNode()->getY() + rv * sin(beta + alpha),
 							wz = firstNode->getNode()->getZ() + (lastNode->getNode()->getZ() - firstNode->getNode()->getZ()) * rx / relNX;
 
-						if (api->CA_RayCastLine(wx, wy, wz + (float)10.0, wx, wy, wz - (float)10.0, wx, wy, wz, 0) != 0) {
-							this->pathData->push_front(new pathPoint(wx, wy, wz));
+						API::Vector point;
+						if (API::CA::getInstance()->performRayTest(API::Vector(wx, wy, wz + 10.0f), API::Vector(wx, wy, wz - 10.0f), point, 0) != 0) {
+							this->pathData->push_front(new pathPoint(point.x, point.y, point.z));
 							//logprintf("ADD -------------> wx, wy, wz = %f,%f,%f (rx = %f/%f, ry = %f/%f, a = %f, b = %f) rdist = %f", wx, wy, wz, rx, relNX, ry, relNY, a, b, rdist);
 						}
 					}
@@ -257,10 +258,10 @@ void RoadPath::createSmoothPath(roadPathNode *node)
 							wx = firstNode->getNode()->getX() + v.getX() / parts * j,
 							wy = firstNode->getNode()->getY() + v.getY() / parts * j,
 							wz = firstNode->getNode()->getZ() + v.getZ() / parts * j;
-						//logprintf("---------->wx=%f,wy=%f,wz=%f", wx, wy, wz);
-						if (api->CA_RayCastLine(wx, wy, wz + height, wx, wy, wz - height, wx, wy, wz, 0) != 0) {
-							this->pathData->push_front(new pathPoint(wx, wy, wz));
-							//logprintf("ADD ------------->x=%f,y=%f,z=%f", wx, wy, wz);
+
+						API::Vector point;
+						if (API::CA::getInstance()->performRayTest(API::Vector(wx, wy, wz + height), API::Vector(wx, wy, wz - height), point, 0) != 0) {
+							this->pathData->push_front(new pathPoint(point.x, point.y, point.z));
 						}
 						j += 1.0;
 					}
@@ -428,8 +429,8 @@ bool roadNode::isInvisible(std::vector <Point3D> *points, int world)
 {
 	for (auto point : *points) {
 		if (point.getWorld() != world) continue;
-		float h;
-		if (api->CA_RayCastLine(this->getX(), this->getY(), this->getZ() + (float)1.0, point.getX(), point.getY(), point.getZ() + (float)1.0, h, h, h, 0) == 0) {
+		API::Vector point2;
+		if (API::CA::getInstance()->performRayTest(API::Vector(this->getX(), this->getY(), this->getZ() + 1.0f), API::Vector(point.getX(), point.getY(), point.getZ() + 1.0f), point2, 0) == 0) {
 			return false;
 		}
 	}
@@ -553,10 +554,10 @@ void RoadPath::fixRoads()
 				}
 			}
 		}
-
-		float x, y, z;
-		if (api->CA_RayCastLine(node->getX(), node->getY(), node->getZ() + (float)1.5, node->getX(), node->getY(), node->getZ() - (float)20.0, x, y, z, 0) != 0) {
-			node->setPos(&Point3D(x, y, z));
+		
+		API::Vector point;
+		if (API::CA::getInstance()->performRayTest(API::Vector(node->getX(), node->getY(), node->getZ() + 1.5f), API::Vector(node->getX(), node->getY(), node->getZ() - 20.0f), point, 0) != 0) {
+			node->setPos(&Point3D(point.x, point.y, point.z));
 		}
 	}
 }

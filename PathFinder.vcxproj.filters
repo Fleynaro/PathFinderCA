@@ -51,9 +51,6 @@
     <ClCompile Include="SDK\amxplugin2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CA_API.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Natives.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

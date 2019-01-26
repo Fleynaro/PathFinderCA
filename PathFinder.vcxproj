@@ -87,7 +87,6 @@
     <None Include="PathFinder.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CA_API.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="genPath.cpp" />
     <ClCompile Include="geometry.cpp" />

@@ -6,8 +6,6 @@
 #include "geometry.h"
 #include <algorithm>
 
-extern CA_API *api;
-
 
 struct pathPoint
 {

@@ -52,7 +52,11 @@ void Path::setBeginRelativeCoord(float x, float y, int width = 10, int height = 
 
 bool Path::check(float x1, float y1, float z1, float x2, float y2, float z2, float &x, float &y, float &z)
 {
-	bool result = api->CA_RayCastLine(x1, y1, z1, x2, y2, z2, x, y, z, this->GetWorld()) != 0;
+	API::Vector Result;
+	bool result = API::CA::getInstance()->performRayTest(API::Vector(x1, y1, z1), API::Vector(x2, y2, z2), Result, this->GetWorld()) != 0;
+	x = Result.x;
+	y = Result.y;
+	z = Result.z;
 	return result;
 }
 

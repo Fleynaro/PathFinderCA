@@ -5,8 +5,7 @@ cell AMX_NATIVE_CALL Natives::PF_Init(AMX* amx, cell* params)
 {
 	if (!inited)
 	{
-		api = new CA_API();
-		if (!api->success) {
+		if (API::CA::getInstance() == NULL) {
 			logprintf("PathFinder Plugin not loaded.");
 			return 0;
 		}
